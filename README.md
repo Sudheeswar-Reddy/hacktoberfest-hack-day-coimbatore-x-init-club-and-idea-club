@@ -1,6 +1,6 @@
 # StuckPoint
 
-> A local-first coding companion that works across every coding platform: it notices when a student or developer is stuck, offers hints or full help depending on *where* they are, never hands out code on practice and assessment sites, and builds an evidence-backed report of their strengths and weak spots — powered by Activity Frames and a locally running Gemma 4.
+> A privacy-first coding companion that works across every coding platform: it notices when a student or developer is stuck, offers hints or full help depending on *where* they are, never hands out code on practice and assessment sites, and builds an evidence-backed report of their strengths and weak spots — powered by Activity Frames and Gemma 4.
 
 ## Team
 
@@ -32,7 +32,7 @@ Instructors and learners also lack an honest picture of progress. Self-assessmen
 
 Every member of our team has lived both failure modes — the hour-long rabbit hole and the copy-pasted solution that taught us nothing. Coding practice is one of the most common activities for engineering students, so better help at the moment of being stuck has a direct effect on learning, placement preparation and confidence.
 
-We also saw a technical opening. [Activity Frames](https://github.com/nossa-y/activity-frames) compiles screen activity into structured, evidence-linked episodes that work across *any* application. That makes it possible to detect being stuck from behaviour, platform-independently, without writing a plugin for every editor and website. Pairing it with an open-weight model running locally means a student's screen never leaves their laptop.
+We also saw a technical opening. [Activity Frames](https://github.com/nossa-y/activity-frames) compiles screen activity into structured, evidence-linked episodes that work across *any* application. That makes it possible to detect being stuck from behaviour, platform-independently, without writing a plugin for every editor and website. Because capture and compilation happen on the device, the model only ever needs a short text summary of what happened, never the student's screen.
 
 ## Solution
 
@@ -43,7 +43,7 @@ StuckPoint runs quietly on the user's machine and does four things:
 3. **Adapts help to context.** On practice and assessment platforms it gives graduated hints only (nudge → concept → pseudocode) and never generates code. On your own projects it offers a hint first and full code if you ask. On exam/proctored sites it switches itself off.
 4. **Builds a skills report.** Over time it produces a report of where you are strong, where you need to improve, and what to practise next. Every claim is backed by measured evidence from your sessions.
 
-Everything — capture, episode compilation and Gemma 4 inference — runs locally.
+Screen capture and episode compilation run locally. Gemma 4 is called through the Gemini API with compact text summaries only.
 
 ### Key Features
 
@@ -52,7 +52,7 @@ Everything — capture, episode compilation and Gemma 4 inference — runs local
 - **Graduated hint escalation** — each request reveals a little more (nudge → key concept → pseudocode), so the learner does the solving.
 - **Evidence-backed skills report** — strengths, weak topics, average time-to-unstuck per topic and recommended next problems, each linked to the sessions it came from.
 - **Evidence gate** — every number Gemma 4 states in the report is recomputed from measured data before it is shown; unsupported claims are rejected or downgraded.
-- **Local-first privacy** — no screen data, code or activity leaves the machine. The model runs locally through Ollama.
+- **Privacy by design** — screen capture and the activity database stay on the machine. Gemma 4 receives only short text summaries (problem title, window titles, time and input counts) plus any code the user explicitly pastes. Never screenshots.
 
 ## Innovation and Differentiation
 
@@ -64,7 +64,7 @@ Everything — capture, episode compilation and Gemma 4 inference — runs local
 | Give the full answer in one step | Escalate hints step by step |
 | No longitudinal view of the learner | Builds a skills profile over weeks of real practice |
 | LLM claims about the user are unchecked | Every report claim is verified against measured activity |
-| Usually cloud-based | Fully local, open-weight model |
+| Often send code or screen content to the cloud | Capture stays local; the open-weight model sees only minimal text summaries |
 
 Our core technical idea is **evidence-gated inference**. Activity Frames separates *measured* facts (what app, which page, how long, how much input) from *inferred* interpretations, which must carry a confidence level and evidence. Activity Frames itself only produces the measured tier. StuckPoint adds the inferred tier using Gemma 4, and builds a deterministic checker that recomputes every number Gemma cites from the measured frames before anything reaches the user. In short: **Gemma can propose; only the measured data can prove.**
 
@@ -79,7 +79,7 @@ flowchart TD
     C --> D[Context classifier<br/>URL → practice / project / exam]
     C --> E[Stuck detector<br/>deterministic rules every 60s]
     D --> F{Help policy}
-    E -->|stuck signal| G[Gemma 4 · local via Ollama<br/>borderline stuck judgement]
+    E -->|stuck signal| G[Gemma 4 · Gemini API<br/>borderline stuck judgement]
     G -->|confirmed| H[Popup: 'Want a hint?']
     H -->|user accepts| F
     F -->|practice / assessment| I[Graduated hints only<br/>nudge → concept → pseudocode]
@@ -99,9 +99,9 @@ flowchart TD
 | Frontend        | [Streamlit dashboard for the report; desktop notification/popup — finalize during build] |
 | Backend         | Python 3.10+ |
 | Database        | SQLite (local capture database managed by Activity Frames' recorder); JSON files for sessions and reports |
-| AI / ML         | Gemma 4 (instruction-tuned, run locally via Ollama) |
-| Infrastructure  | Runs entirely on the user's machine; no cloud services |
-| APIs / Services | Activity Frames Python API and CLI; Ollama local HTTP API |
+| AI / ML         | Gemma 4 (`gemma-4-31b-it`, instruction-tuned) |
+| Infrastructure  | Runs on the user's machine; model inference via Google's Gemini API |
+| APIs / Services | Gemini API (`google-genai` SDK) for Gemma 4; Activity Frames Python API and CLI |
 
 
 ### How It Works
@@ -134,7 +134,7 @@ Borderline cases go to Gemma 4, which judges whether the pattern looks like prod
 - **Deterministic first, LLM second.** Stuck detection starts with transparent rules over measured frames. Gemma 4 is used only where judgement is needed: borderline stuck cases, hint writing, topic tagging and report drafting. This keeps behaviour predictable and fast.
 - **Measured vs inferred separation.** We follow Activity Frames' two-tier specification. All model output lives under an `inferred` namespace with a confidence level and evidence, so the measured record can always be inspected on its own.
 - **Evidence gate for the report.** A report that tells someone "you're weak at DP" must be trustworthy. Recomputing every number from the measured tier prevents hallucinated statistics.
-- **Local open-weight model.** The input is a person's screen, so sending it to a cloud API would be inappropriate. Gemma 4 running locally through Ollama keeps all data on the device.
+- **Minimal data to the model.** Capture and compilation stay on the device, and Gemma 4 receives only compact text summaries, never screenshots or the capture database. We use Gemma 4 through the Gemini API so it runs on any laptop without a GPU; because Gemma is open-weight, the same prompts can run fully offline on a local runtime in future.
 - **Ask, don't interrupt.** Help is offered, never forced. Users can dismiss or snooze the popup.
 - **Hard no-code rule on practice/assessment sites.** This is enforced twice: in the prompt and by a post-generation check that blocks code blocks in hint mode.
 
@@ -145,7 +145,7 @@ Borderline cases go to Gemma 4, which judges whether the pattern looks like prod
 - [ ] Activity Frames capture and compilation running on the demo machine
 - [ ] LeetCode problem parser and context classifier
 - [ ] Deterministic stuck detector with configurable thresholds
-- [ ] Gemma 4 integration via Ollama with structured JSON output
+- [ ] Gemma 4 integration via the Gemini API with validated JSON output
 - [ ] Graduated hint escalation with the no-code check
 - [ ] Help popup (accept / dismiss / snooze)
 - [ ] Session aggregation and topic tagging
@@ -164,7 +164,7 @@ Borderline cases go to Gemma 4, which judges whether the pattern looks like prod
 
 **Live Application:** [Live URL]
 
-StuckPoint observes the local screen and runs its model locally, so it is designed to run on the user's own machine rather than as a hosted web app. Judges can test it by following [Setup and Usage](#setup-and-usage). [If a hosted read-only dashboard of the demo report is deployed, add its link here and describe what can be explored.]
+StuckPoint observes the local screen, so it is designed to run on the user's own machine rather than as a hosted web app. Judges can test it by following [Setup and Usage](#setup-and-usage). [If a hosted read-only dashboard of the demo report is deployed, add its link here and describe what can be explored.]
 
 ## Demo Video
 
@@ -181,16 +181,16 @@ The demo covers:
 
 ### AI / Models
 
-- **Gemma 4 (instruction-tuned, run locally via Ollama):** Judges borderline stuck patterns; generates graduated, code-free hints in practice mode; generates code assistance in project mode; tags problems and errors with skill topics; drafts the skills report as structured JSON, which is then verified by the evidence gate. [Specify the exact Gemma 4 variant used, e.g. the model tag pulled in Ollama.]
+- **Gemma 4 (`gemma-4-31b-it`, via the Gemini API):** Judges borderline stuck patterns; generates graduated, code-free hints in practice mode; generates code assistance in project mode; tags problems and errors with skill topics; drafts the skills report as structured JSON, which is then verified by the evidence gate. [Update if the `gemma-4-26b-a4b-it` fallback was used.]
 
 ### Open Source Components
 
 - **[Activity Frames](https://github.com/nossa-y/activity-frames) (MIT):** Local screen-activity capture management and deterministic compilation of activity into evidence-linked episodes; used as a dependency via `pip install activity-frames`. Its schema and two-tier measured/inferred specification are the foundation of our data model.
 - **[screenpipe](https://github.com/mediar-ai/screenpipe) (MIT):** Capture engine provisioned and managed by Activity Frames' `aframes record`.
-- **[Ollama](https://github.com/ollama/ollama) (MIT):** Local runtime for Gemma 4.
+- **[google-genai](https://github.com/googleapis/python-genai) (Apache 2.0):** Python SDK for calling Gemma 4 through the Gemini API.
 - **[Streamlit](https://github.com/streamlit/streamlit) (Apache 2.0):** Skills-report dashboard. [Update if a different UI framework is used.]
 - **Dataset:** N/A — all data is generated by the user's own activity. Demo data was recorded by team members during the Hack Day.
-- **API / Service:** N/A — no external APIs; all inference is local.
+- **API / Service:** Gemini API (Google AI Studio) — hosted inference for Gemma 4.
 
 Gemma 4 is used under its published license terms. Activity Frames and screenpipe are used under the MIT license; their copyright notices are preserved in their packages.
 
@@ -202,8 +202,8 @@ Gemma 4 is used under its published license terms. Activity Frames and screenpip
 
 - macOS (Apple Silicon recommended — Activity Frames' capture engine is best tested there; Linux x64 is supported but less tested)
 - Python 3.10 or newer
-- [Ollama](https://ollama.com) installed and running
-- A Gemma 4 model pulled in Ollama
+- A Gemini API key from [Google AI Studio](https://aistudio.google.com/apikey)
+- Internet connection (for Gemma 4 calls)
 - Screen-recording and accessibility permissions granted to the capture engine when prompted
 
 ### Installation
@@ -214,14 +214,14 @@ cd stuckpoint
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-ollama pull [gemma4-model-tag]
+cp .env.example .env   # then add your GEMINI_API_KEY
 ```
 
 ### Environment Variables
 
 ```env
-GEMMA_MODEL=[gemma4-model-tag]
-OLLAMA_HOST=http://localhost:11434
+GEMINI_API_KEY=your-key-here
+GEMMA_MODEL=gemma-4-31b-it
 # Optional: point to an existing capture database instead of recording
 AFRAMES_DB=
 # Minutes on one problem before a stuck check runs
@@ -263,7 +263,7 @@ To stop capture: `aframes record --stop`.
 
 > _To be completed after the Hack Day._
 
-- **Challenges:** [e.g. platform support for capture, defining "stuck" reliably, keeping hints from leaking code, local model latency]
+- **Challenges:** [e.g. platform support for capture, defining "stuck" reliably, keeping hints from leaking code, API latency and rate limits]
 - **Learnings:** [What the team learned technically and about the problem]
 
 ## Credits and License
@@ -273,7 +273,7 @@ To stop capture: `aframes record --stop`.
 - [Activity Frames](https://github.com/nossa-y/activity-frames) by Nossa Iyamu — episodic activity capture and compilation (MIT)
 - [screenpipe](https://github.com/mediar-ai/screenpipe) — capture engine (MIT)
 - [Gemma 4](https://ai.google.dev/gemma) by Google — open-weight language model
-- [Ollama](https://ollama.com) — local model runtime (MIT)
+- [Gemini API / Google AI Studio](https://ai.google.dev) — hosted Gemma 4 inference
 - [Streamlit](https://streamlit.io) — dashboard framework (Apache 2.0)
 - Built at Hacktoberfest Hack Day Coimbatore 2026, hosted by INIT Club & iDEA Club, Amrita Vishwa Vidyapeetham, powered by MLH
 
