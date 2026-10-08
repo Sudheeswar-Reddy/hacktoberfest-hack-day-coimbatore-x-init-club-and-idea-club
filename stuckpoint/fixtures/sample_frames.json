@@ -1,0 +1,294 @@
+{
+  "schema_version": 1,
+  "_synthetic": true,
+  "_note": "Synthetic development fixture in Activity Frames schema v1. Replace with a real recording (aframes day <date> -f json).",
+  "generated_at": "2026-10-08T15:20:00Z",
+  "source": {
+    "recorder": "synthetic"
+  },
+  "window": {
+    "day": "2026-10-08"
+  },
+  "coverage": {
+    "first_activity": "19:30",
+    "last_activity": "20:46"
+  },
+  "frames": [
+    {
+      "id": "f-0001",
+      "app": "Google Chrome",
+      "site": "leetcode.com",
+      "start": "19:30:05",
+      "end": "19:41:40",
+      "duration_min": 11.6,
+      "windows": [
+        "1. Two Sum - LeetCode"
+      ],
+      "pages": [
+        {
+          "kind": "page",
+          "entity": "problems"
+        }
+      ],
+      "input": {
+        "keys": 610,
+        "clicks": 44
+      },
+      "evidence": {
+        "frame_ids": "100000..100068"
+      }
+    },
+    {
+      "id": "f-0002",
+      "app": "Google Chrome",
+      "site": "leetcode.com",
+      "start": "19:41:40",
+      "end": "19:44:10",
+      "duration_min": 2.5,
+      "windows": [
+        "Two Sum - Submissions - LeetCode"
+      ],
+      "pages": [
+        {
+          "kind": "page",
+          "entity": "problems"
+        }
+      ],
+      "input": {
+        "keys": 12,
+        "clicks": 9
+      },
+      "evidence": {
+        "frame_ids": "100069..100083"
+      }
+    },
+    {
+      "id": "f-0003",
+      "app": "Code",
+      "start": "19:46:00",
+      "end": "19:58:30",
+      "duration_min": 12.5,
+      "windows": [
+        "app.py — todo-api — Visual Studio Code"
+      ],
+      "input": {
+        "keys": 780,
+        "clicks": 52
+      },
+      "evidence": {
+        "frame_ids": "100084..100158"
+      }
+    },
+    {
+      "id": "f-0004",
+      "app": "Google Chrome",
+      "site": "localhost",
+      "start": "19:58:30",
+      "end": "20:00:10",
+      "duration_min": 1.7,
+      "windows": [
+        "Todo API"
+      ],
+      "pages": [
+        {
+          "kind": "local_dev",
+          "entity": "localhost:5173"
+        }
+      ],
+      "input": {
+        "keys": 4,
+        "clicks": 11
+      },
+      "evidence": {
+        "frame_ids": "100159..100168"
+      }
+    },
+    {
+      "id": "f-0005",
+      "app": "Code",
+      "start": "20:00:10",
+      "end": "20:10:20",
+      "duration_min": 10.2,
+      "windows": [
+        "routes.py — todo-api — Visual Studio Code"
+      ],
+      "input": {
+        "keys": 640,
+        "clicks": 38
+      },
+      "evidence": {
+        "frame_ids": "100169..100229"
+      }
+    },
+    {
+      "id": "f-0006",
+      "app": "Google Chrome",
+      "site": "leetcode.com",
+      "start": "20:12:00",
+      "end": "20:20:10",
+      "duration_min": 8.2,
+      "windows": [
+        "322. Coin Change - LeetCode"
+      ],
+      "pages": [
+        {
+          "kind": "page",
+          "entity": "problems"
+        }
+      ],
+      "input": {
+        "keys": 58,
+        "clicks": 21
+      },
+      "evidence": {
+        "frame_ids": "100230..100278"
+      }
+    },
+    {
+      "id": "f-0007",
+      "app": "Google Chrome",
+      "site": "stackoverflow.com",
+      "start": "20:20:10",
+      "end": "20:24:00",
+      "duration_min": 3.8,
+      "windows": [
+        "dynamic programming - Coin change minimum coins - Stack Overflow"
+      ],
+      "pages": [
+        {
+          "kind": "question",
+          "entity": "coin-change-minimum-coins"
+        }
+      ],
+      "input": {
+        "keys": 6,
+        "clicks": 14
+      },
+      "evidence": {
+        "frame_ids": "100279..100300"
+      }
+    },
+    {
+      "id": "f-0008",
+      "app": "Google Chrome",
+      "site": "leetcode.com",
+      "start": "20:24:00",
+      "end": "20:29:15",
+      "duration_min": 5.2,
+      "windows": [
+        "322. Coin Change - LeetCode"
+      ],
+      "pages": [
+        {
+          "kind": "page",
+          "entity": "problems"
+        }
+      ],
+      "input": {
+        "keys": 39,
+        "clicks": 17
+      },
+      "evidence": {
+        "frame_ids": "100301..100331"
+      }
+    },
+    {
+      "id": "f-0009",
+      "app": "Google Chrome",
+      "site": "chatgpt.com",
+      "start": "20:29:15",
+      "end": "20:33:05",
+      "duration_min": 3.8,
+      "windows": [
+        "ChatGPT"
+      ],
+      "pages": [
+        {
+          "kind": "ai_chat"
+        }
+      ],
+      "input": {
+        "keys": 61,
+        "clicks": 6
+      },
+      "evidence": {
+        "frame_ids": "100332..100353"
+      }
+    },
+    {
+      "id": "f-0010",
+      "app": "Google Chrome",
+      "site": "leetcode.com",
+      "start": "20:33:05",
+      "end": "20:38:20",
+      "duration_min": 5.2,
+      "windows": [
+        "322. Coin Change - LeetCode"
+      ],
+      "pages": [
+        {
+          "kind": "page",
+          "entity": "problems"
+        }
+      ],
+      "input": {
+        "keys": 44,
+        "clicks": 19
+      },
+      "evidence": {
+        "frame_ids": "100354..100384"
+      }
+    },
+    {
+      "id": "f-0011",
+      "app": "Google Chrome",
+      "site": "google.com",
+      "start": "20:38:20",
+      "end": "20:41:10",
+      "duration_min": 2.8,
+      "windows": [
+        "coin change dp explanation - Google Search"
+      ],
+      "pages": [
+        {
+          "kind": "search",
+          "entity": "coin change dp explanation"
+        }
+      ],
+      "input": {
+        "keys": 27,
+        "clicks": 8
+      },
+      "evidence": {
+        "frame_ids": "100385..100400"
+      }
+    },
+    {
+      "id": "f-0012",
+      "app": "Google Chrome",
+      "site": "leetcode.com",
+      "start": "20:41:10",
+      "end": "20:46:30",
+      "duration_min": 5.3,
+      "windows": [
+        "322. Coin Change - LeetCode"
+      ],
+      "pages": [
+        {
+          "kind": "page",
+          "entity": "problems"
+        }
+      ],
+      "input": {
+        "keys": 31,
+        "clicks": 12
+      },
+      "evidence": {
+        "frame_ids": "100401..100431"
+      }
+    }
+  ],
+  "blind_spots": [
+    "Synthetic data: generated by scripts/make_fixture.py, not recorded."
+  ]
+}

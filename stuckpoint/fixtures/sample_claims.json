@@ -1,0 +1,93 @@
+{
+  "_note": "Sample ReportClaims + the metrics they were drafted from, for Person 3's gate tests. Claim clm-bad001 is deliberately wrong (avg_active_min 25.0 vs measured 34.3) and must be REJECTED. Claim clm-bad002 cites a problem that doesn't exist and must be REJECTED. Claim clm-thin01 rests on one problem and must be DOWNGRADED.",
+  "metrics": {
+    "topics": {
+      "dynamic-programming": {
+        "problems": 1,
+        "avg_active_min": 34.3,
+        "stuck_episodes": 1,
+        "hints_used": 3,
+        "solved": 0,
+        "problem_keys": ["leetcode:coin-change"]
+      },
+      "hashing": {
+        "problems": 1,
+        "avg_active_min": 14.1,
+        "stuck_episodes": 0,
+        "hints_used": 0,
+        "solved": 1,
+        "problem_keys": ["leetcode:two-sum"]
+      },
+      "arrays": {
+        "problems": 2,
+        "avg_active_min": 24.2,
+        "stuck_episodes": 1,
+        "hints_used": 3,
+        "solved": 1,
+        "problem_keys": ["leetcode:two-sum", "leetcode:coin-change"]
+      }
+    },
+    "overall": {
+      "problems": 3,
+      "total_active_min": 72.8,
+      "stuck_episodes": 1,
+      "hints_used": 3
+    }
+  },
+  "claims": [
+    {
+      "id": "clm-good01",
+      "kind": "strength",
+      "text": "Arrays are a strength: you worked through 2 array problems and solved 1 of them.",
+      "topic": "arrays",
+      "numeric_claims": {"problems": 2, "solved": 1},
+      "about_problems": ["leetcode:two-sum", "leetcode:coin-change"],
+      "confidence": "medium"
+    },
+    {
+      "id": "clm-good02",
+      "kind": "weakness",
+      "text": "Across 3 problems you needed 3 hints in total, all on one problem.",
+      "topic": null,
+      "numeric_claims": {"problems": 3, "hints_used": 3},
+      "about_problems": ["leetcode:coin-change"],
+      "confidence": "high"
+    },
+    {
+      "id": "clm-thin01",
+      "kind": "strength",
+      "text": "Hashing looks solid: you solved Two Sum in 14.1 minutes without getting stuck.",
+      "topic": "hashing",
+      "numeric_claims": {"avg_active_min": 14.1, "stuck_episodes": 0},
+      "about_problems": ["leetcode:two-sum"],
+      "confidence": "high"
+    },
+    {
+      "id": "clm-bad001",
+      "kind": "weakness",
+      "text": "Dynamic programming is your weak spot: you spent 25.0 minutes stuck on it.",
+      "topic": "dynamic-programming",
+      "numeric_claims": {"avg_active_min": 25.0},
+      "about_problems": ["leetcode:coin-change"],
+      "confidence": "medium"
+    },
+    {
+      "id": "clm-bad002",
+      "kind": "weakness",
+      "text": "You also struggled with 1 graph problem.",
+      "topic": "dynamic-programming",
+      "numeric_claims": {"problems": 1},
+      "about_problems": ["leetcode:number-of-islands"],
+      "confidence": "speculative"
+    },
+    {
+      "id": "clm-rec001",
+      "kind": "recommendation",
+      "text": "Practise two easier dynamic-programming problems (e.g. Climbing Stairs) before retrying Coin Change.",
+      "topic": "dynamic-programming",
+      "numeric_claims": {},
+      "about_problems": ["leetcode:coin-change"],
+      "confidence": "medium"
+    }
+  ]
+}

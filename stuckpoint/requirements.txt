@@ -1,0 +1,15 @@
+# Person 1 — local engine, capture & detection
+fastapi>=0.110
+uvicorn>=0.27
+activity-frames>=0.2.0           # the compiler; pure Python, works on every OS
+python-dotenv>=1.0
+# optional OS-level recorder: pip install -r requirements-recorder.txt
+
+# Person 2 — Gemma 4 via the Gemini API
+google-genai>=1.0
+jsonschema>=4.0
+pygls>=2.0                       # language server for any IDE (python -m stuckpoint lsp)
+
+# dev
+pytest>=7
+httpx>=0.25          # FastAPI TestClient

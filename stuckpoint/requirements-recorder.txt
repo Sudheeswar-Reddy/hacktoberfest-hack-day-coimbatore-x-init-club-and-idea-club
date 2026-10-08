@@ -1,0 +1,5 @@
+# Optional: OS-level recorder (python -m stuckpoint record) for capture WITHOUT the extensions.
+# Not needed when you use the Chrome / VS Code extensions.
+-r requirements.txt
+uiautomation>=2.0; sys_platform == "win32"   # exact browser URLs on Windows
+pynput>=1.7; sys_platform != "win32"         # key/click counts on macOS / Linux (X11)
