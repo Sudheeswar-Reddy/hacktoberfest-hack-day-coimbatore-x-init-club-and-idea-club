@@ -1,67 +1,75 @@
-// editor_bridge.js — MAIN world (can access window.monaco)
-// Reads Monaco editor code and applies decorations
-(function () {
-  let decorationCollection = null;
+(() => {
+  const SOURCE = "stuckpoint-page-bridge";
+  let decorations = null;
 
-  function getEditor() {
-    if (typeof monaco !== "undefined" && monaco.editor) {
-      const editors = monaco.editor.getEditors ? monaco.editor.getEditors() : [];
-      return editors[0] || null;
-    }
-    return null;
+  function findEditor() {
+    return window.monaco?.editor?.getEditors?.()?.[0] || null;
   }
 
-  // Listen for requests from editor_ui.js (isolated world)
-  window.addEventListener("message", (e) => {
-    if (!e.data || e.data.source !== "stuckpoint") return;
-
-    if (e.data.action === "get-code") {
-      const ed = getEditor();
-      if (ed) {
-        const code = ed.getValue();
-        const lang = ed.getModel()?.getLanguageId() || "unknown";
-        window.postMessage({
-          source: "stuckpoint-bridge",
-          action: "code-result",
-          code,
-          language: lang,
-        }, "*");
-      } else {
-        window.postMessage({
-          source: "stuckpoint-bridge",
-          action: "code-result",
-          code: null,
-          language: null,
-        }, "*");
-      }
+  function readEditor() {
+    const editor = findEditor();
+    if (editor) {
+      return {
+        code: editor.getValue(),
+        language: editor.getModel?.()?.getLanguageId?.() || "text",
+        monaco: true
+      };
     }
+    const lines = Array.from(document.querySelectorAll(".view-line"));
+    return {code: lines.map((line) => line.textContent || "").join("\n"), language: "text", monaco: false};
+  }
 
-    if (e.data.action === "apply-decorations") {
-      const ed = getEditor();
-      if (!ed) return;
+  function clearDecorations(editor) {
+    if (!editor || !decorations) return;
+    try {
+      if (typeof decorations.clear === "function") decorations.clear();
+      else editor.deltaDecorations(decorations, []);
+    } catch {}
+    decorations = null;
+  }
 
-      // Clear old decorations
-      if (decorationCollection) {
-        decorationCollection.clear();
-      }
+  function markdownFor(suggestion) {
+    const before = suggestion.complexity_before || "?";
+    const after = suggestion.complexity_after || "?";
+    const parts = [`**⚡ Faster approach** · ${before} → ${after}`, "", suggestion.issue || "Code improvement", "", suggestion.why || "", "", `*Try:* ${suggestion.suggestion || "Review this section."}`];
+    if (suggestion.replacement) parts.push("", "```", String(suggestion.replacement).replace(/```/g, "ʼʼʼ"), "```");
+    return parts.join("\n");
+  }
 
-      const sugs = e.data.suggestions || [];
-      if (sugs.length === 0) return;
+  function applyDecorations(suggestions) {
+    const editor = findEditor();
+    if (!editor) return false;
+    clearDecorations(editor);
+    const monaco = window.monaco;
+    const specs = (suggestions || []).filter((item) => Number.isInteger(item.start_line) && Number.isInteger(item.end_line) && item.start_line > 0 && item.end_line >= item.start_line)
+      .map((item) => ({
+        range: new monaco.Range(item.start_line, 1, item.end_line, 1),
+        options: {
+          isWholeLine: true,
+          className: "sp-highlight",
+          glyphMarginClassName: "sp-glyph",
+          hoverMessage: {value: markdownFor(item), isTrusted: false, supportHtml: false}
+        }
+      }));
+    if (!specs.length) return true;
+    if (editor.createDecorationsCollection) {
+      decorations = editor.createDecorationsCollection(specs);
+    } else {
+      decorations = editor.deltaDecorations([], specs);
+    }
+    return true;
+  }
 
-      decorationCollection = ed.createDecorationsCollection(
-        sugs.map((s) => ({
-          range: new monaco.Range(s.start_line, 1, s.end_line, 1),
-          options: {
-            isWholeLine: true,
-            className: "sp-highlight",
-            glyphMarginClassName: "sp-glyph",
-            hoverMessage: { value: s.markdown },
-          },
-        }))
-      );
+  window.addEventListener("message", (event) => {
+    if (event.source !== window || event.data?.source !== "stuckpoint-extension") return;
+    if (event.data.type === "READ_EDITOR") {
+      const result = readEditor();
+      window.postMessage({source: SOURCE, type: "EDITOR_CONTENT", requestId: event.data.requestId, ...result}, "*");
+    } else if (event.data.type === "APPLY_SUGGESTIONS") {
+      const ok = applyDecorations(event.data.suggestions || []);
+      window.postMessage({source: SOURCE, type: "DECORATIONS_APPLIED", requestId: event.data.requestId, ok}, "*");
+    } else if (event.data.type === "CLEAR_SUGGESTIONS") {
+      clearDecorations(findEditor());
     }
   });
-
-  // Signal that the bridge is ready
-  window.postMessage({ source: "stuckpoint-bridge", action: "ready" }, "*");
 })();

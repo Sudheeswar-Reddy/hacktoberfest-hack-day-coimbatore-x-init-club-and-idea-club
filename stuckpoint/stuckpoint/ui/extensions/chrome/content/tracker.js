@@ -1,38 +1,39 @@
-// tracker.js — content script (all pages)
-// Sends focus heartbeats + input counts every 10s
-(function () {
-  if (location.protocol === "chrome:" || location.protocol === "chrome-extension:") return;
+(() => {
+  if (location.protocol === "chrome:" || location.protocol === "chrome-extension:" ||
+      location.protocol === "edge:" || location.protocol === "about:") return;
 
   let keys = 0;
   let clicks = 0;
 
-  document.addEventListener("keydown", () => { keys++; }, true);
-  document.addEventListener("click", () => { clicks++; }, true);
+  document.addEventListener("keydown", () => { keys += 1; }, true);
+  document.addEventListener("click", () => { clicks += 1; }, true);
 
-  function sendEvents() {
-    if (document.visibilityState !== "visible" || !document.hasFocus()) return;
-
-    const ts = new Date().toISOString();
-    const app = "Google Chrome";
-    const title = document.title;
-    const url = location.href;
-
-    // Focus heartbeat
-    chrome.runtime.sendMessage({
-      type: "sp-event",
-      event: { type: "focus", ts, app, title, url },
-    });
-
-    // Input counts
-    if (keys > 0 || clicks > 0) {
-      chrome.runtime.sendMessage({
-        type: "sp-event",
-        event: { type: "input", ts, app, keys, clicks },
-      });
-      keys = 0;
-      clicks = 0;
+  function send(event) {
+    try {
+      chrome.runtime.sendMessage({type: "STUCKPOINT_TRACK_EVENT", event});
+    } catch {
+      // The service worker may be restarting; counters are sent again next interval.
     }
   }
 
-  setInterval(sendEvents, 10000);
+  setInterval(() => {
+    const focused = document.visibilityState === "visible" && document.hasFocus();
+    if (focused) {
+      send({
+        type: "focus",
+        ts: new Date().toISOString(),
+        app: "Google Chrome",
+        title: document.title,
+        url: location.href
+      });
+      // Zero counts are meaningful: they let the engine measure low-input periods.
+      send({type: "input", ts: new Date().toISOString(), app: "Google Chrome", keys, clicks});
+      keys = 0;
+      clicks = 0;
+    } else if (keys || clicks) {
+      send({type: "input", ts: new Date().toISOString(), app: "Google Chrome", keys, clicks});
+      keys = 0;
+      clicks = 0;
+    }
+  }, 10_000);
 })();

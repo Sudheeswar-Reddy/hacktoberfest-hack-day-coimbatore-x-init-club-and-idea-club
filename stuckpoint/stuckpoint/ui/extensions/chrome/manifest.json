@@ -2,7 +2,8 @@
   "manifest_version": 3,
   "name": "StuckPoint",
   "version": "0.1.0",
-  "description": "Detects when you are stuck and shows help via side panel.",
+  "description": "Activity-aware hints and evidence-backed code suggestions.",
+  "minimum_chrome_version": "116",
   "permissions": ["storage", "notifications", "alarms", "sidePanel", "tabs"],
   "host_permissions": ["http://127.0.0.1:8765/*", "<all_urls>"],
   "background": {"service_worker": "background.js"},
@@ -17,8 +18,8 @@
     {
       "matches": ["https://leetcode.com/problems/*"],
       "js": ["content/editor_bridge.js"],
-      "world": "MAIN",
-      "run_at": "document_idle"
+      "run_at": "document_idle",
+      "world": "MAIN"
     },
     {
       "matches": ["https://leetcode.com/problems/*"],

@@ -1,113 +1,135 @@
-// background.js — StuckPoint service worker
 const ENGINE = "http://127.0.0.1:8765";
-let eventBuffer = [];
+const QUEUE_KEY = "stuckpoint.eventQueue";
+const LAST_SIGNAL_KEY = "stuckpoint.lastNotifiedSignal";
+const MAX_QUEUED_EVENTS = 500;
+let flushing = false;
 
-// Open side panel on icon click
-chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
+async function readQueue() {
+  const saved = await chrome.storage.session.get(QUEUE_KEY);
+  return Array.isArray(saved[QUEUE_KEY]) ? saved[QUEUE_KEY].map((item) =>
+    item?.queueId && item?.payload ? item : {queueId: crypto.randomUUID(), payload: item}
+  ) : [];
+}
 
-// Buffer events from content scripts and flush every 10s
-chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  if (msg.type === "sp-event") {
-    eventBuffer.push(msg.event);
-    sendResponse({ ok: true });
-  }
-  if (msg.type === "sp-get-status") {
-    fetch(`${ENGINE}/status`)
-      .then(r => r.json())
-      .then(data => sendResponse(data))
-      .catch(() => sendResponse({ context: "unknown", signal: null }));
-    return true; // async
-  }
-  if (msg.type === "sp-suggest") {
-    fetch(`${ENGINE}/suggest`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(msg.payload),
-    })
-      .then(r => r.json())
-      .then(data => sendResponse(data))
-      .catch(() => sendResponse({ suggestions: [] }));
-    return true;
-  }
-  if (msg.type === "sp-hint") {
-    fetch(`${ENGINE}/hint`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(msg.payload),
-    })
-      .then(r => r.json())
-      .then(data => sendResponse(data))
-      .catch(() => sendResponse({ error: "Engine offline" }));
-    return true;
-  }
-  if (msg.type === "sp-solved") {
-    fetch(`${ENGINE}/solved`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(msg.payload),
-    })
-      .then(r => r.json())
-      .then(data => sendResponse(data))
-      .catch(() => sendResponse({ ok: false }));
-    return true;
-  }
-  if (msg.type === "sp-report") {
-    fetch(`${ENGINE}/report`)
-      .then(r => r.json())
-      .then(data => sendResponse(data))
-      .catch(() => sendResponse({ error: "Engine offline" }));
-    return true;
-  }
-});
+async function queueEvents(events) {
+  const queue = await readQueue();
+  queue.push(...events.map((event) => ({queueId: crypto.randomUUID(), payload: event})));
+  if (queue.length > MAX_QUEUED_EVENTS) queue.splice(0, queue.length - MAX_QUEUED_EVENTS);
+  await chrome.storage.session.set({[QUEUE_KEY]: queue});
+}
 
-// Flush buffered events to the engine
 async function flushEvents() {
-  if (eventBuffer.length === 0) return;
-  const batch = eventBuffer.splice(0, 500);
+  if (flushing) return;
+  const queue = await readQueue();
+  if (!queue.length) return;
+  flushing = true;
   try {
-    await fetch(`${ENGINE}/events`, {
+    const batch = queue.slice(0, MAX_QUEUED_EVENTS);
+    const response = await fetch(`${ENGINE}/events`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ source: "chrome", events: batch }),
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({source: "chrome", events: batch.map((item) => item.payload)})
     });
-  } catch {
-    // Engine offline — put events back
-    eventBuffer.unshift(...batch);
-    if (eventBuffer.length > 500) eventBuffer = eventBuffer.slice(-500);
+    if (!response.ok) throw new Error(`engine returned ${response.status}`);
+    const sentIds = new Set(batch.map((item) => item.queueId));
+    const latestQueue = await readQueue();
+    await chrome.storage.session.set({[QUEUE_KEY]: latestQueue.filter((item) => !sentIds.has(item.queueId))});
+  } catch (error) {
+    console.debug("StuckPoint event delivery deferred:", error.message);
+  } finally {
+    flushing = false;
   }
 }
 
-// Flush every 10 seconds
-setInterval(flushEvents, 10000);
+async function requestEngine(path, method = "GET", body) {
+  if (!path.startsWith("/")) throw new Error("Engine paths must be relative.");
+  const response = await fetch(`${ENGINE}${path}`, {
+    method,
+    headers: {"Content-Type": "application/json"},
+    ...(body === undefined ? {} : {body: JSON.stringify(body)})
+  });
+  const text = await response.text();
+  let data = {};
+  try { data = text ? JSON.parse(text) : {}; } catch { data = {detail: text}; }
+  if (!response.ok) throw new Error(data.detail || `Engine returned ${response.status}`);
+  return data;
+}
 
-// Alarm as MV3 keepalive (minimum 30s)
-chrome.alarms.create("sp-poll", { periodInMinutes: 0.5 });
-
-let lastSignalId = null;
-
-chrome.alarms.onAlarm.addListener(async (alarm) => {
-  if (alarm.name !== "sp-poll") return;
-  flushEvents();
+async function pollStatus() {
   try {
-    const res = await fetch(`${ENGINE}/status`);
-    const data = await res.json();
-    if (data.signal && data.signal.id !== lastSignalId) {
-      lastSignalId = data.signal.id;
-      chrome.notifications.create(data.signal.id, {
-        type: "basic",
-        iconUrl: "icons/icon128.png",
-        title: "Stuck?",
-        message: `Looks like you've been stuck on ${data.signal.problem || "this problem"}. Click for a hint.`,
-      });
-    }
-  } catch { /* engine offline */ }
+    const result = await requestEngine("/status");
+    const signal = result.signal;
+    if (!signal || signal.status !== "confirmed" || !signal.id) return;
+    const saved = await chrome.storage.local.get(LAST_SIGNAL_KEY);
+    if (saved[LAST_SIGNAL_KEY] === signal.id) return;
+    await chrome.storage.local.set({[LAST_SIGNAL_KEY]: signal.id});
+    await chrome.notifications.create(signal.id, {
+      type: "basic",
+      iconUrl: chrome.runtime.getURL("icons/icon128.png"),
+      title: "StuckPoint",
+      message: `Stuck on ${signal.problem_title || "this problem"}? Click for a hint.`
+    });
+  } catch (error) {
+    // The extension remains usable while the local engine is stopped.
+    console.debug("StuckPoint engine is not available:", error.message);
+  }
+}
+
+async function openPanelForSignal(signalId) {
+  try {
+    await requestEngine(`/signal/${encodeURIComponent(signalId)}/status`, "POST", {status: "offered"});
+  } catch (error) {
+    console.debug("Could not update signal status:", error.message);
+  }
+  try {
+    const [tab] = await chrome.tabs.query({active: true, lastFocusedWindow: true});
+    if (tab?.windowId !== undefined) await chrome.sidePanel.open({windowId: tab.windowId});
+  } catch (error) {
+    console.debug("Could not open StuckPoint side panel:", error.message);
+  }
+}
+
+chrome.runtime.onInstalled.addListener(async () => {
+  await chrome.sidePanel.setPanelBehavior({openPanelOnActionClick: true});
+  await chrome.alarms.create("stuckpoint-poll", {periodInMinutes: 0.5});
 });
 
-chrome.notifications.onClicked.addListener((notifId) => {
-  chrome.sidePanel.open({ windowId: undefined });
-  fetch(`${ENGINE}/signal/${notifId}/status`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ status: "offered" }),
-  }).catch(() => {});
+chrome.runtime.onStartup.addListener(async () => {
+  await chrome.sidePanel.setPanelBehavior({openPanelOnActionClick: true});
+  await chrome.alarms.create("stuckpoint-poll", {periodInMinutes: 0.5});
 });
+
+chrome.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === "stuckpoint-poll") {
+    void flushEvents();
+    void pollStatus();
+  }
+});
+
+chrome.notifications.onClicked.addListener((notificationId) => {
+  void openPanelForSignal(notificationId);
+  chrome.notifications.clear(notificationId);
+});
+
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message?.type === "STUCKPOINT_TRACK_EVENT") {
+    void queueEvents([message.event]).then(() => flushEvents())
+      .then(() => sendResponse({ok: true}))
+      .catch((error) => sendResponse({ok: false, error: error.message}));
+    return true;
+  }
+  if (message?.type === "STUCKPOINT_ENGINE_REQUEST") {
+    void requestEngine(message.path, message.method || "GET", message.body)
+      .then((data) => sendResponse({ok: true, data}))
+      .catch((error) => sendResponse({ok: false, error: error.message}));
+    return true;
+  }
+  if (message?.type === "STUCKPOINT_OPEN_PANEL") {
+    void openPanelForSignal(message.signalId).then(() => sendResponse({ok: true}));
+    return true;
+  }
+  return false;
+});
+
+// Best effort while the worker is awake; the alarm is the service-worker-safe backup.
+setInterval(() => { void flushEvents(); }, 10_000);
