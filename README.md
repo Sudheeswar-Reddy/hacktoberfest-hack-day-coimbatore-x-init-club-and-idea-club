@@ -1,6 +1,6 @@
 # StuckPoint
 
-> A Chrome extension (with a VS Code companion) that notices when you're stuck while coding, gives help that depends on *where* you are, highlights slow parts of your code with a GitHub-style hover card showing a faster approach, and builds an evidence-backed skills report, all inside the extension and powered by Gemma 4.
+> A Chrome extension (with IDE extensions) for students and working developers. It notices when you're stuck while coding and gives help that depends on *where* you are. On **any website or IDE**, it highlights slow code with a GitHub-style hover card showing a faster approach. It also builds an evidence-backed skills report, all inside the extension and powered by Gemma 4.
 
 ## Team
 
@@ -11,7 +11,7 @@
 | ------ | -------------- |
 | [Name] (Team Lead) | Local engine: FastAPI server, event ingestion into Activity Frames, stuck detection, store, metrics |
 | [Name] | Gemma 4 layer: hints, no-code guard, code suggestions with quote verification, evidence gate, report |
-| [Name] | Chrome extension: activity tracking, notifications, LeetCode highlights and hover cards |
+| [Name] | Chrome extension: activity tracking, notifications, highlights and hover cards on any site |
 | [Name] | Side panel dashboard, VS Code extension, README, demo and submission |
 
 
@@ -24,17 +24,19 @@ When students and developers get stuck on code, they usually fall into one of tw
 1. **They struggle alone for too long.** They loop between the editor, errors, Stack Overflow and docs for 30–60 minutes without progress.
 2. **They outsource the thinking.** They paste the problem into an AI chatbot, copy the solution and learn nothing. On practice platforms like LeetCode that defeats the purpose of practising; on assignments it's an academic-integrity problem.
 
-Existing AI assistants make this worse. They live inside one editor, so they can't see that you've bounced between LeetCode, Google and ChatGPT for 25 minutes. They apply the same policy everywhere, solving a practice problem as readily as writing boilerplate. And when your code *works but is slow*, nobody shows you where, in the place you're actually writing it.
+Existing AI assistants make this worse. They live inside one editor, so they can't see that you've bounced between LeetCode, Google and ChatGPT for 25 minutes. They apply the same policy everywhere, solving a practice problem as readily as writing boilerplate. And when code *works but is slow*, nobody shows you where, in the place you're actually reading or writing it.
+
+The last problem isn't limited to students. Working developers read and write code in many places every day: their IDE, online editors, GitHub files, Stack Overflow answers, documentation and AI chat answers. Performance feedback today is locked inside one editor or a separate chat window.
 
 ### Why We Chose This Problem
 
 Every member of our team has lived both failure modes: the hour-long rabbit hole and the copy-pasted solution that taught us nothing. Coding practice is one of the most common activities for engineering students, so better help at the moment of being stuck, and honest feedback on *how* we code, directly affects learning and placement preparation.
 
-A browser extension is the right place for it: it is where students practise (LeetCode, HackerRank), search (Stack Overflow, Google) and ask AI (ChatGPT). It works on every operating system without installing a separate app. A VS Code extension covers the projects they build.
+A browser extension is the right place for it: it is where people practise (LeetCode, HackerRank), search (Stack Overflow, Google), read code (GitHub, docs) and ask AI (ChatGPT). It works on every operating system without installing a separate app. IDE extensions cover the projects they build.
 
 ## Solution
 
-StuckPoint is a **Chrome extension** (primary) plus a **VS Code extension**, backed by a small local engine:
+StuckPoint is a **Chrome extension** (primary) plus **IDE extensions**, backed by a small local engine:
 
 1. **Tracks coding activity across tools.** Which coding site or file you're on and how much you type: counts only, never the keys.
 2. **Detects stuck moments**: long time on one problem, loops to help sites, low typing.
@@ -44,31 +46,45 @@ StuckPoint is a **Chrome extension** (primary) plus a **VS Code extension**, bac
    | Context | Examples | Help | Code suggestions |
    |---|---|---|---|
    | Practice | LeetCode, HackerRank, Codeforces | Hints only, 3 levels, never code | Highlight + explanation; faster code unlocks only after you mark the problem solved |
-   | Project | VS Code, localhost, GitHub | Hint first; full fix on request | Highlight + hover card with faster code + Apply |
+   | Project | VS Code and other IDEs, online editors (CodeSandbox, StackBlitz, Replit, Colab), localhost | Hint first; full fix on request | Highlight + hover card with faster code + Apply |
+   | Review | Read-only code on GitHub, Stack Overflow, docs, blogs, AI chat answers | — | Highlight + hover card with faster code + Copy |
    | Exam | Proctored / assessment sites | Off | Off |
 
-5. **Inline code suggestions.** Slow or clumsy lines are highlighted in the editor (LeetCode's Monaco editor in Chrome, or VS Code). Hovering shows a card like GitHub's hover cards: what's slow, why, complexity before → after, and the better approach.
+   A **profile setting** fits it to the user:
+   - **Professional:** direct answers in your own code.
+   - **Student (learner mode):** faster code is held back until you ask, even in projects, so you try first.
+
+5. **Universal inline code suggestions.** Slow or clumsy lines are highlighted wherever code appears. Hovering shows the same card everywhere, like GitHub's hover cards: what's slow, why, complexity before → after, and the better approach.
+   - **Live editors on any website:** Monaco, CodeMirror and Ace, the editors behind LeetCode, CodeSandbox, HackerRank-style judges and most online IDEs.
+   - **Read-only code blocks on any page:** GitHub, Stack Overflow, documentation, blogs, AI chat answers.
+   - **IDEs:** VS Code and its forks (Cursor, Windsurf, VSCodium), in any language.
 6. **Skills report in the side panel.** Strengths, weak topics, time-to-unstuck and hints used, with every number verified against measured activity.
 
 ### Key Features
 
 - **Chrome extension first:** works on Windows, macOS and Linux; the dashboard lives in Chrome's side panel, with no separate app to open.
-- **VS Code extension:** suggestions as editor diagnostics, hover cards, and a one-click "⚡ Apply faster version" quick fix.
+- **Hover suggestions on any site:** live editors (Monaco, CodeMirror, Ace) and read-only code blocks. One click on ⚡, or right-click → *Review this code*.
+- **IDE extension:** one VS Code extension that also runs in Cursor, Windsurf and VSCodium. Suggestions appear as diagnostics, hover cards and a one-click "⚡ Apply faster version" quick fix, in any language.
+- **For students and professionals:** a learner mode that teaches before it tells, and a professional mode that just gives you the faster code.
 - **Cross-site stuck detection:** sees the loop between the problem, Stack Overflow, Google and ChatGPT, which an editor plugin alone cannot.
 - **Context-aware help policy:** hints only on practice sites, full help on your own projects, off during exams.
 - **Graduated hints:** nudge → concept → plain-English plan, so the learner does the solving.
 - **Highlight + hover suggestions:** faster approaches shown where the code is, GitHub-style.
 - **Verified AI output:** report numbers are recomputed from measured activity, and code suggestions must quote your real code or they are dropped.
-- **Privacy by design:** keystroke *contents* are never recorded, only counts. The API key stays in the local engine, not in the extension.
+- **Privacy by design:**
+  - Keystroke *contents* are never recorded, only counts.
+  - Code from ordinary web pages is sent only when you click ⚡. Auto-review runs only in editors on coding sites, and can be turned off per site.
+  - The API key stays in the local engine, not in the extension.
 
 ## Innovation and Differentiation
 
 | Conventional AI coding assistants | StuckPoint |
 |---|---|
-| Live inside one editor or one website | Chrome extension + VS Code extension sharing one engine and one view of your activity |
+| Live inside one editor or one website | Any website in Chrome + VS Code-family IDEs, sharing one engine and one view of your activity |
 | Respond only when asked | Notice being stuck and *offer* help |
-| Same policy everywhere; will solve practice problems | Policy depends on context: hints only where learning or integrity matters |
-| Code review only on request, in a chat window | Highlights slow code in place, with a hover card, GitHub-style |
+| Same policy everywhere; will solve practice problems | Policy depends on context and profile: hints only where learning or integrity matters |
+| Code review only on request, in a chat window | Highlights slow code in place, wherever it is, with a GitHub-style hover card |
+| Built either for learners or for professionals | One tool for both: learner mode teaches, professional mode gives the fix |
 | Show the optimal solution immediately | On practice sites, the faster code unlocks only after you solve it yourself |
 | LLM output is trusted as-is | **"Gemma proposes; code verifies."** Report numbers are recomputed from activity; suggestion line numbers are computed from exact quotes of your code, never taken from the model |
 
@@ -80,15 +96,16 @@ Our core technical idea is **verified inference**. [Activity Frames](https://git
 
 ```mermaid
 flowchart LR
-    subgraph Chrome["Chrome extension (primary)"]
+    subgraph Chrome["Chrome extension (primary) — every site"]
         T[tracker.js<br/>focus + key/click counts] --> SW[background.js<br/>service worker]
-        EB[editor_bridge.js<br/>reads Monaco code,<br/>applies decorations] <--> EU[editor_ui.js<br/>highlights + hover cards]
+        EB[editor_bridge.js<br/>adapters: Monaco ·<br/>CodeMirror · Ace] <--> EU[code_ui.js<br/>editors + code blocks,<br/>highlights, ⚡ button]
+        EU --> HC[hovercard.js<br/>shared GitHub-style card]
         EU <--> SW
-        SP[Side panel<br/>Now · Suggestions · Report] <--> SW
+        SP[Side panel<br/>Now · Suggestions ·<br/>Report · Settings] <--> SW
         SW --> N[Chrome notifications]
     end
-    subgraph VSC["VS Code extension"]
-        VE[extension.js<br/>activity events · diagnostics ·<br/>hover cards · quick fix]
+    subgraph IDE["IDEs"]
+        VE[VS Code extension<br/>also Cursor · Windsurf · VSCodium]
     end
     SW -- HTTP --> API
     VE -- HTTP --> API
@@ -108,7 +125,7 @@ flowchart LR
 
 | Category        | Technologies                |
 | --------------- | --------------------------- |
-| Frontend        | Chrome extension (Manifest V3, plain JavaScript, Side Panel API, Monaco editor decorations); VS Code extension (JavaScript, Diagnostics / Hover / Code Action APIs) |
+| Frontend        | Chrome extension (Manifest V3, plain JavaScript, Side Panel API, context menus; editor adapters for Monaco, CodeMirror and Ace; shadow-DOM hover cards); VS Code extension (JavaScript, Diagnostics / Hover / Code Action APIs; also runs in Cursor, Windsurf, VSCodium) |
 | Backend         | Python 3.10+, FastAPI, Uvicorn (local engine on `127.0.0.1:8765`) |
 | Database        | SQLite: capture database in Activity Frames' schema; local store for signals, hints, solved flags and report claims |
 | AI / ML         | Gemma 4 (`gemma-4-31b-it`) via the Gemini API |
@@ -133,11 +150,16 @@ When rules agree, the signal is confirmed; borderline cases go to Gemma 4. The e
 
 **5. Hints.** In the side panel, each request reveals one more level (nudge → concept → plan). On practice sites the prompt forbids code, and a guard blocks anything code-like and regenerates. Code is never shown, even if the user asks.
 
-**6. Code suggestions.** When typing pauses (or on demand), the extension reads the code from the editor and the engine asks Gemma 4 for up to three improvements. Each must include an **exact quote** of the user's code. The engine finds that quote, **computes the line numbers itself**, and drops any suggestion whose quote doesn't exist. The extension then highlights those lines:
-- **Chrome / LeetCode:** Monaco editor decorations, with a hover card and a ⚡ gutter marker.
-- **VS Code:** Information diagnostics, a hover card, and an "Apply faster version" quick fix.
+**6. Universal code suggestions.** The extension finds code wherever it appears:
+- **Live editors on any site:** an adapter for each editor family reads the code and adds highlights (Monaco decorations, CodeMirror `markText`, Ace markers).
+- **Read-only code blocks:** `pre`/`code` blocks on any page, highlighted with an overlay that never changes the page's own text.
+- **VS Code and its forks.**
 
-On practice sites the replacement code is withheld until the problem is marked solved.
+When typing pauses in a coding-site editor, or when the user clicks ⚡, the engine asks Gemma 4 for up to three improvements. Each must include an **exact quote** of the user's code. The engine finds that quote, **computes the line numbers itself**, and drops any suggestion whose quote doesn't exist.
+
+The engine also decides the mode (practice, project, review or exam) from the site and surface. Replacement code is withheld on practice sites until the problem is marked solved, and in learner mode until the user asks.
+
+The same hover card appears everywhere, rendered in a shadow DOM so no website's styles can break it. It offers **Apply** in editable editors and **Copy** on read-only code. In VS Code, suggestions are Information diagnostics with a hover card and an "Apply faster version" quick fix.
 
 **7. Skills report.** Activity is grouped into per-problem sessions; Gemma 4 tags topics and drafts claims (strengths, weaknesses, recommendations). The **evidence gate** recomputes every number from the measured metrics and checks every cited problem exists. Claims are marked verified, low-confidence or rejected, with the reason shown in the side panel.
 
@@ -147,8 +169,10 @@ On practice sites the replacement code is withheld until the problem is marked s
 - **Local engine between extensions and Gemma.** One shared brain for Chrome and VS Code, reusing the same Python detection and Gemma code, and keeping the API key out of client-side extension code.
 - **Deterministic first, LLM second.** Stuck detection, line ranges and report numbers are computed by code. Gemma 4 is used only where judgement or language is needed.
 - **Never trust model line numbers.** Suggestions are anchored by exact quotes; unmatched quotes are discarded.
-- **Monaco's native decorations for highlights.** LeetCode uses the Monaco editor (the VS Code editor), so its built-in decoration hover messages give a native-feeling hover card. A DOM-overlay fallback exists if Monaco isn't reachable.
-- **Earned answers on practice sites.** Faster code is withheld until the user marks the problem solved, so suggestions teach rather than replace practice.
+- **Editor adapters, one card.** Most web editors are built on Monaco, CodeMirror or Ace, so three small adapters cover most sites. Static code blocks cover the rest. A single shared hover card keeps the experience identical everywhere.
+- **Click-to-review outside coding sites.** Reading a blog or a GitHub file never sends code anywhere unless you click ⚡. This keeps it private and keeps model calls cheap.
+- **One VS Code extension, many IDEs.** Cursor, Windsurf and VSCodium implement the VS Code extension API, so the same extension runs in all of them.
+- **Earned answers for learners.** On practice sites, and in learner mode, faster code is withheld until the user has solved the problem or asks, so suggestions teach rather than replace practice. Professionals get the fix directly.
 - **Counts, not content.** Typing is measured as counts only; the engine stores no typed text.
 
 ## Implementation During the Hackathon
@@ -159,17 +183,19 @@ On practice sites the replacement code is withheld until the problem is marked s
 - [x] Gemma 4 client with JSON validation, retries, caching and logging
 - [x] Graduated hints with the no-code guard; borderline stuck judgement; topic tagging; report-claim drafting
 - [ ] Local engine: FastAPI server, ingestion into Activity Frames, background detection loop
-- [ ] Chrome extension: tracking, notifications, side panel
-- [ ] LeetCode highlights + hover cards
-- [ ] Code suggestions with quote verification and practice-mode policy
+- [ ] Chrome extension: tracking, notifications, side panel with Settings (profile, per-site off)
+- [ ] Hover cards on Monaco editors (any site) and read-only code blocks (any site)
+- [ ] CodeMirror and Ace editor adapters
+- [ ] Code suggestions with quote verification and the mode/profile policy
 - [ ] Evidence gate + skills report in the side panel
-- [ ] VS Code extension: diagnostics, hover cards, quick fix
+- [ ] VS Code extension: diagnostics, hover cards, quick fix (also tested in Cursor)
+- [ ] Language server for other IDEs (Neovim, JetBrains, Sublime, Zed, Helix)
 
 ### Team Contributions
 
 - **[Member Name]:** Local engine, ingestion into Activity Frames, stuck detection, store, metrics
 - **[Member Name]:** Gemma 4 integration, hints and guard, code suggestions, evidence gate, report
-- **[Member Name]:** Chrome extension core: tracking, notifications, LeetCode highlights and hover cards
+- **[Member Name]:** Chrome extension core: tracking, notifications, editor adapters, highlights and hover cards on any site
 - **[Member Name]:** Side panel dashboard, VS Code extension, README, demo video, submission
 
 ## Working Application
@@ -187,8 +213,9 @@ The demo covers:
 1. On LeetCode, a user gets stuck on *Coin Change*, bouncing to Stack Overflow and ChatGPT; a Chrome notification offers help.
 2. The side panel gives graduated hints and refuses to show code, even when asked.
 3. On *Two Sum*, a working nested-loop solution gets highlighted; the hover card explains the O(n²) → O(n) improvement. After marking it solved, the card shows the faster code.
-4. In VS Code, a slow pattern in a project file is highlighted; hover shows the suggestion, and the quick fix applies it.
-5. The side-panel report shows verified, low-confidence and rejected claims, with reasons.
+4. In professional mode, a code block on Stack Overflow (or GitHub) is reviewed with one click on ⚡; the same hover card appears, with Copy.
+5. In VS Code, a slow pattern in a project file is highlighted; hover shows the suggestion, and the quick fix applies it. The same extension runs in Cursor.
+6. The side-panel report shows verified, low-confidence and rejected claims, with reasons.
 
 ## Open Source and AI Usage
 
@@ -209,7 +236,7 @@ The demo covers:
 - **[FastAPI](https://github.com/fastapi/fastapi) (MIT) + [Uvicorn](https://github.com/encode/uvicorn) (BSD):** Local engine HTTP server.
 - **[google-genai](https://github.com/googleapis/python-genai) (Apache 2.0):** Python SDK for calling Gemma 4 through the Gemini API.
 - **[jsonschema](https://github.com/python-jsonschema/jsonschema) (MIT):** Validates every Gemma 4 response.
-- **Monaco editor APIs** (as embedded by LeetCode; Monaco is MIT): used at runtime to read code and add highlight decorations. Not bundled.
+- **Monaco, CodeMirror and Ace editor APIs** (as embedded by the websites that use them; all open source): used at runtime to read code and add highlights. Not bundled.
 - **Dataset:** N/A. All data comes from the user's own activity; demo data was recorded by team members during the Hack Day.
 - **API / Service:** Gemini API (Google AI Studio), hosted inference for Gemma 4.
 
@@ -237,7 +264,9 @@ cp .env.example .env             # then add your GEMINI_API_KEY
 
 **Chrome extension:** open `chrome://extensions`, enable **Developer mode**, click **Load unpacked**, and select `extensions/chrome`.
 
-**VS Code extension:** open the `extensions/vscode` folder in VS Code and press **F5** to launch it in an Extension Development Host window.
+**VS Code extension (also Cursor, Windsurf, VSCodium):** open the `extensions/vscode` folder in the editor and press **F5** to launch it in an Extension Development Host window. Set your profile in Settings → `stuckpoint.profile` (`professional` or `student`).
+
+**Other IDEs (Neovim, JetBrains, Sublime Text, Zed, Helix):** [if built] point your editor's LSP client at `python -m stuckpoint lsp`. [If not built, this is listed under Future work.]
 
 ### Environment Variables
 
@@ -268,11 +297,16 @@ python -m pytest                 # run the tests
 
 ### Usage
 
-1. Start the engine, then click the StuckPoint icon in Chrome to open the side panel.
-2. Code as usual on LeetCode, or in VS Code. The side panel's **Now** tab shows the detected context (Practice / Project / Exam).
+1. Start the engine, then click the StuckPoint icon in Chrome to open the side panel. In **Settings**, choose **Professional** or **Student (learner mode)**.
+2. Code as usual: on LeetCode, in an online editor, or in your IDE. The **Now** tab shows the detected context (Practice / Project / Review / Exam).
 3. When you're stuck, a notification offers help. Open it for graduated hints: **Next hint** reveals more; **Solved ✓** marks the problem done.
-4. Slow code gets highlighted. **Hover** over the highlight for the suggestion card. On practice sites the faster code appears after you mark the problem solved; in VS Code, use **⚡ Apply faster version** from the quick-fix menu.
-5. Open the **Report** tab and click **Refresh** for your skills report. Click **Show evidence** on any claim to see what it's based on.
+4. **Hover suggestions, anywhere:**
+   - **Editors on coding sites:** slow code is highlighted automatically when you pause typing.
+   - **Any other code on a web page:** hover the code block and click ⚡, or select code and right-click → **StuckPoint: Review this code**.
+   - Hover a highlight to see the card. Use **Apply** (editors) or **Copy** (read-only code). On practice sites and in learner mode, the faster code appears after you solve the problem or click **Show me**.
+   - **In your IDE:** use **⚡ Apply faster version** from the quick-fix menu.
+5. Turn StuckPoint off for any site from **Settings**. It is always off on exam sites.
+6. Open the **Report** tab and click **Refresh** for your skills report. Click **Show evidence** on any claim to see what it's based on.
 
 ## Devpost Submission
 
@@ -284,7 +318,13 @@ python -m pytest                 # run the tests
 
 > _To be completed after the Hack Day._
 
-- **Challenges:** [e.g. Activity Frames' recorder being macOS-only (solved by making the extensions the recorder), reaching LeetCode's Monaco editor from an extension, MV3 service-worker lifecycles, keeping hints from leaking code, anchoring model suggestions to real lines]
+- **Challenges:** [e.g. Activity Frames' recorder being macOS-only (solved by making the extensions the recorder), reaching each website's code editor from an extension, keeping the hover card's styling safe on any site, MV3 service-worker lifecycles, keeping hints from leaking code, anchoring model suggestions to real lines]
+
+### Future work
+
+- Language server (`python -m stuckpoint lsp`) so every LSP editor, including Neovim, JetBrains (via LSP4IJ), Sublime Text, Zed and Helix, gets the same highlights and hover cards. [Move to Key Features if built during the event.]
+- Firefox and Edge builds of the browser extension.
+- Team mode for professionals: shared, opt-in suggestion patterns across a codebase.
 - **Learnings:** [What the team learned technically and about the problem]
 
 ## Credits and License
