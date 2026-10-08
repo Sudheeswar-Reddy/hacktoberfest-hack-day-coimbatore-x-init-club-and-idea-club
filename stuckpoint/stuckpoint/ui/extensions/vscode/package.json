@@ -1,0 +1,26 @@
+{
+  "name": "stuckpoint-vscode",
+  "displayName": "StuckPoint",
+  "description": "Detects when you're stuck, highlights slow code, and shows faster approaches with hover cards and quick fixes.",
+  "version": "0.1.0",
+  "publisher": "stuckpoint",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": ["onStartupFinished"],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "stuckpoint.review",
+        "title": "StuckPoint: Review this file"
+      },
+      {
+        "command": "stuckpoint.hint",
+        "title": "StuckPoint: I'm stuck"
+      }
+    ]
+  },
+  "icon": "icon.png"
+}
