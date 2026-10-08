@@ -9,10 +9,10 @@
 
 | Member | Contribution   |
 | ------ | -------------- |
-| [Name] (Team Lead) | Local engine: FastAPI server, event ingestion into Activity Frames, stuck detection, store, metrics |
-| [Name] | Gemma 4 layer: hints, no-code guard, code suggestions with quote verification, evidence gate, report |
-| [Name] | Chrome extension: activity tracking, notifications, highlights and hover cards on any site |
-| [Name] | Side panel dashboard, VS Code extension, README, demo and submission |
+| Thulasiram Sudheeswar Reddy (Team Lead) | Local engine: FastAPI server, event ingestion into Activity Frames, stuck detection, store, metrics |
+| Poornashri P | Gemma 4 layer: hints, no-code guard, code suggestions with quote verification, evidence gate, report |
+| Yashwanth Eswar Podupuganti | Chrome extension: activity tracking, notifications, highlights and hover cards on any site |
+| Sandhiri Shree Vardhan | Side panel dashboard, VS Code extension, README, demo and submission |
 
 
 ## Problem Statement
