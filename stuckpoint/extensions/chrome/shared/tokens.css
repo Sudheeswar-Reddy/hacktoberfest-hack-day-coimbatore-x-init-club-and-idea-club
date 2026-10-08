@@ -1,0 +1,154 @@
+/* shared/tokens.css — StuckPoint Design System Tokens
+ * Source of truth for Colors, Typography, Spacing, Elevation, and Motion.
+ */
+
+:root {
+  /* ===== Base Color Palette (Deep Ink Dark Mode) ===== */
+  --sp-color-bg: #0E0F1A;
+  --sp-color-surface: #16182A;
+  --sp-color-surface-elevated: #1D2038;
+  --sp-color-surface-hover: #232742;
+  --sp-color-surface-active: #2A2F50;
+
+  /* Borders */
+  --sp-color-border: rgba(255, 255, 255, 0.08);
+  --sp-color-border-subtle: rgba(255, 255, 255, 0.04);
+  --sp-color-border-hover: rgba(255, 255, 255, 0.16);
+  --sp-color-border-active: rgba(255, 255, 255, 0.24);
+
+  /* Primary Brand (Violet) */
+  --sp-color-primary: #8B5CF6;
+  --sp-color-primary-hover: #7C3AED;
+  --sp-color-primary-active: #6D28D9;
+  --sp-color-primary-subtle: rgba(139, 92, 246, 0.14);
+  --sp-color-primary-border: rgba(139, 92, 246, 0.35);
+  --sp-color-primary-gradient: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+  --sp-color-primary-glow: rgba(139, 92, 246, 0.28);
+
+  /* Semantic Feedback */
+  --sp-color-success: #22C55E;
+  --sp-color-success-bg: rgba(34, 197, 94, 0.12);
+  --sp-color-success-border: rgba(34, 197, 94, 0.3);
+
+  --sp-color-warning: #F59E0B;
+  --sp-color-warning-hover: #D97706;
+  --sp-color-warning-bg: rgba(245, 158, 11, 0.12);
+  --sp-color-warning-border: rgba(245, 158, 11, 0.35);
+  --sp-color-warning-glow: rgba(245, 158, 11, 0.25);
+
+  --sp-color-danger: #EF4444;
+  --sp-color-danger-bg: rgba(239, 68, 68, 0.12);
+  --sp-color-danger-border: rgba(239, 68, 68, 0.3);
+
+  --sp-color-info: #38BDF8;
+  --sp-color-info-bg: rgba(56, 189, 248, 0.12);
+  --sp-color-info-border: rgba(56, 189, 248, 0.3);
+
+  /* Typography / Text */
+  --sp-color-text-primary: #F8FAFC;
+  --sp-color-text-secondary: #94A3B8;
+  --sp-color-text-muted: #64748B;
+  --sp-color-text-inverse: #0F172A;
+
+  /* ===== Spacing Scale (8pt grid with 4pt half-step) ===== */
+  --sp-space-1: 4px;
+  --sp-space-2: 8px;
+  --sp-space-3: 12px;
+  --sp-space-4: 16px;
+  --sp-space-6: 24px;
+  --sp-space-8: 32px;
+
+  /* ===== Corner Radius ===== */
+  --sp-radius-sm: 4px;
+  --sp-radius-md: 8px;
+  --sp-radius-lg: 12px;
+  --sp-radius-xl: 16px;
+  --sp-radius-full: 9999px;
+
+  /* ===== Shadows & Elevation ===== */
+  --sp-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --sp-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35), 0 1px 3px rgba(0, 0, 0, 0.2);
+  --sp-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.25);
+  --sp-shadow-glow-violet: 0 0 18px var(--sp-color-primary-glow);
+  --sp-shadow-glow-amber: 0 0 18px var(--sp-color-warning-glow);
+
+  /* ===== Z-Index Layers ===== */
+  --sp-z-base: 1;
+  --sp-z-card: 2;
+  --sp-z-dropdown: 50;
+  --sp-z-sticky: 100;
+  --sp-z-toast: 1000;
+
+  /* ===== Typography ===== */
+  --sp-font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --sp-font-mono: "JetBrains Mono", Consolas, "SF Mono", Monaco, "Courier New", monospace;
+
+  --sp-text-xs: 11px;
+  --sp-text-sm: 12px;
+  --sp-text-base: 13px;
+  --sp-text-md: 14px;
+  --sp-text-lg: 16px;
+  --sp-text-xl: 18px;
+
+  --sp-weight-regular: 400;
+  --sp-weight-medium: 500;
+  --sp-weight-semibold: 600;
+  --sp-weight-bold: 700;
+
+  --sp-line-tight: 1.25;
+  --sp-line-normal: 1.5;
+  --sp-line-relaxed: 1.6;
+
+  /* ===== Motion System ===== */
+  --sp-dur-fast: 120ms;
+  --sp-dur-base: 200ms;
+  --sp-dur-slow: 300ms;
+  --sp-dur-pulse: 2000ms;
+
+  --sp-ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --sp-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --sp-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ===== VS Code Theme Integrations ===== */
+body.vscode-light {
+  --sp-color-bg: var(--vscode-sideBar-background, #F8FAFC);
+  --sp-color-surface: var(--vscode-editor-background, #FFFFFF);
+  --sp-color-surface-elevated: var(--vscode-sideBarSectionHeader-background, #F1F5F9);
+  --sp-color-surface-hover: rgba(0, 0, 0, 0.04);
+  --sp-color-surface-active: rgba(0, 0, 0, 0.08);
+
+  --sp-color-border: var(--vscode-sideBar-border, rgba(0, 0, 0, 0.1));
+  --sp-color-border-subtle: rgba(0, 0, 0, 0.05);
+  --sp-color-border-hover: rgba(0, 0, 0, 0.2);
+
+  --sp-color-text-primary: var(--vscode-foreground, #0F172A);
+  --sp-color-text-secondary: var(--vscode-descriptionForeground, #475569);
+  --sp-color-text-muted: #94A3B8;
+
+  --sp-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --sp-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --sp-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+body.vscode-high-contrast {
+  --sp-color-bg: #000000;
+  --sp-color-surface: #000000;
+  --sp-color-surface-elevated: #111111;
+  --sp-color-border: #FFFFFF;
+  --sp-color-border-subtle: #888888;
+  --sp-color-text-primary: #FFFFFF;
+  --sp-color-text-secondary: #CCCCCC;
+  --sp-color-text-muted: #AAAAAA;
+  --sp-color-primary: #9D74FF;
+}
+
+/* ===== Accessibility: Prefers-Reduced-Motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

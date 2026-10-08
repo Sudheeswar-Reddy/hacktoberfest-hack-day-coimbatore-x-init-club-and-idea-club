@@ -1,0 +1,64 @@
+{
+  "name": "stuckpoint-vscode",
+  "displayName": "StuckPoint",
+  "description": "Autonomous AI coding assistant: detects when you're stuck, highlights slow code, and shows faster approaches in an autonomous sidebar panel.",
+  "version": "0.1.0",
+  "publisher": "stuckpoint",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": ["onStartupFinished"],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "stuckpoint.review",
+        "title": "StuckPoint: Review this file"
+      },
+      {
+        "command": "stuckpoint.hint",
+        "title": "StuckPoint: I'm stuck"
+      },
+      {
+        "command": "stuckpoint.focusSidePanel",
+        "title": "StuckPoint: Focus Assistant Panel"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "stuckpoint-sidebar",
+          "title": "StuckPoint",
+          "icon": "icon.png"
+        }
+      ]
+    },
+    "views": {
+      "stuckpoint-sidebar": [
+        {
+          "type": "webview",
+          "id": "stuckpoint.sidepanel",
+          "name": "StuckPoint Assistant"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "StuckPoint",
+      "properties": {
+        "stuckpoint.profile": {
+          "type": "string",
+          "enum": ["professional", "student"],
+          "default": "professional",
+          "description": "StuckPoint profile: professional (auto-shows code) or student (learner mode: hints first, code after solving)"
+        },
+        "stuckpoint.autoReview": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically review code in real-time when typing pauses (2s debounce)"
+        }
+      }
+    }
+  },
+  "icon": "icon.png"
+}

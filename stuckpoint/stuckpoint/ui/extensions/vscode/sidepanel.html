@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="en" id="sp-root">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src {{NONCE_STYLE}}; script-src {{NONCE_SCRIPT}};" />
+  <title>StuckPoint</title>
+  <style nonce="{{NONCE}}">
+    /* =====================================================
+       VS Code Sidepanel — Inline Design System
+       Maps to --vscode-* for automatic light/dark/HC support.
+       All assets are inline (no remote sources, no URIs).
+    ===================================================== */
+    :root {
+      /* === Semantic palette derived from VS Code theme vars === */
+      --sp-bg:           var(--vscode-sideBar-background, #0E0F1A);
+      --sp-surface:      var(--vscode-editorWidget-background, #16182A);
+      --sp-surface-el:   var(--vscode-input-background, #1D2038);
+      --sp-border:       var(--vscode-widget-border, rgba(255,255,255,.08));
+      --sp-text:         var(--vscode-foreground, #E2E8F0);
+      --sp-text-sec:     var(--vscode-descriptionForeground, #94A3B8);
+      --sp-text-muted:   var(--vscode-disabledForeground, #64748B);
+      --sp-focus:        var(--vscode-focusBorder, #8B5CF6);
+
+      /* === Fixed design tokens (brand) === */
+      --sp-primary:      #8B5CF6;
+      --sp-primary-h:    #7C3AED;
+      --sp-primary-grad: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+      --sp-primary-glow: rgba(139,92,246,0.3);
+      --sp-success:      #22C55E;
+      --sp-warning:      #F59E0B;
+      --sp-danger:       #EF4444;
+      --sp-info:         #38BDF8;
+      --sp-success-bg:   rgba(34,197,94,.1);
+      --sp-warning-bg:   rgba(245,158,11,.1);
+      --sp-danger-bg:    rgba(239,68,68,.1);
+      --sp-success-bdr:  rgba(34,197,94,.25);
+      --sp-warning-bdr:  rgba(245,158,11,.25);
+      --sp-danger-bdr:   rgba(239,68,68,.25);
+
+      /* === Spacing === */
+      --sp-s1: 4px;  --sp-s2: 8px;  --sp-s3: 12px;
+      --sp-s4: 16px; --sp-s5: 24px;
+
+      /* === Radius === */
+      --sp-r-sm: 6px; --sp-r-md: 8px; --sp-r-lg: 12px; --sp-r-full: 9999px;
+
+      /* === Motion === */
+      --sp-ease: cubic-bezier(.2,.8,.2,1);
+      --sp-ease-spring: cubic-bezier(.34,1.56,.64,1);
+      --sp-dur-fast: 120ms;
+      --sp-dur-base: 200ms;
+      --sp-dur-slow: 300ms;
+    }
+
+    /* High-contrast / light theme overrides */
+    @media (prefers-color-scheme: light) {
+      :root {
+        --sp-bg:         var(--vscode-sideBar-background, #F8FAFC);
+        --sp-surface:    var(--vscode-editorWidget-background, #FFFFFF);
+        --sp-surface-el: var(--vscode-input-background, #F1F5F9);
+        --sp-text:       var(--vscode-foreground, #0F172A);
+        --sp-text-sec:   var(--vscode-descriptionForeground, #475569);
+        --sp-text-muted: var(--vscode-disabledForeground, #94A3B8);
+      }
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%;
+      min-height: 100%;
+      background: var(--sp-bg);
+      color: var(--sp-text);
+      font-family: var(--vscode-font-family, "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+      font-size: 13px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===== Sleek Scrollbar ===== */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.2); }
+
+    /* ===== Shell ===== */
+    .sp-shell {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding: var(--sp-s3);
+      gap: var(--sp-s3);
+    }
+
+    /* ===== Header ===== */
+    .sp-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--sp-s2);
+    }
+
+    .sp-brand {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: -0.01em;
+      color: var(--sp-text);
+    }
+
+    .sp-brand-icon {
+      width: 16px;
+      height: 16px;
+      color: var(--sp-primary);
+      filter: drop-shadow(0 0 5px var(--sp-primary-glow));
+    }
+
+    .sp-header-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Timer Chip */
+    .sp-timer-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 7px;
+      border-radius: var(--sp-r-full);
+      background: var(--sp-surface);
+      border: 1px solid var(--sp-border);
+      font-size: 11px;
+      font-family: "Consolas", "JetBrains Mono", monospace;
+      color: var(--sp-text-muted);
+    }
+    .sp-timer-chip svg { width: 11px; height: 11px; }
+
+    /* Context Chip */
+    .sp-ctx-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 9px;
+      border-radius: var(--sp-r-full);
+      background: var(--sp-surface);
+      border: 1px solid var(--sp-border);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--sp-text-sec);
+    }
+
+    /* Status Pulse Dot */
+    .sp-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--sp-success);
+      box-shadow: 0 0 5px var(--sp-success);
+      flex-shrink: 0;
+    }
+    .sp-dot.amber {
+      background: var(--sp-warning);
+      box-shadow: 0 0 7px var(--sp-warning);
+      animation: dotPulse 1.8s infinite ease-in-out;
+    }
+    .sp-dot.red {
+      background: var(--sp-danger);
+      box-shadow: 0 0 7px var(--sp-danger);
+      animation: dotPulse 1.2s infinite ease-in-out;
+    }
+    .sp-dot.offline { background: var(--sp-text-muted); box-shadow: none; }
+
+    @keyframes dotPulse {
+      0%,100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.4); opacity: .6; }
+    }
+
+    /* ===== Segmented Tabs ===== */
+    .sp-tabs-wrap {
+      position: relative;
+      display: flex;
+      background: var(--sp-surface);
+      border: 1px solid var(--sp-border);
+      border-radius: var(--sp-r-lg);
+      padding: 3px;
+    }
+
+    .sp-tab-slider {
+      position: absolute;
+      top: 3px; bottom: 3px;
+      border-radius: var(--sp-r-md);
+      background: var(--sp-surface-el);
+      border: 1px solid rgba(255,255,255,.1);
+      box-shadow: 0 1px 4px rgba(0,0,0,.2);
+      transition: transform 250ms var(--sp-ease), width 250ms var(--sp-ease);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .sp-tab-btn {
+      position: relative;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 5px 8px;
+      background: transparent;
+      border: none;
+      border-radius: var(--sp-r-md);
+      color: var(--sp-text-muted);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      z-index: 2;
+      transition: color var(--sp-dur-fast) var(--sp-ease);
+      outline: none;
+      font-family: inherit;
+    }
+    .sp-tab-btn:hover { color: var(--sp-text); }
+    .sp-tab-btn.active { color: var(--sp-text); font-weight: 600; }
+    .sp-tab-btn:focus-visible {
+      outline: 2px solid var(--sp-focus);
+      outline-offset: -2px;
+    }
+
+    .sp-tab-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 15px;
+      height: 15px;
+      padding: 0 5px;
+      border-radius: var(--sp-r-full);
+      background: var(--sp-primary);
+      color: #FFF;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1;
+      animation: badgePop 200ms var(--sp-ease-spring);
+    }
+    @keyframes badgePop {
+      from { transform: scale(0.4); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    /* ===== Tab Panels ===== */
+    .sp-panel { display: none; flex-direction: column; gap: var(--sp-s3); animation: tabSlide var(--sp-dur-base) var(--sp-ease); }
+    .sp-panel.active { display: flex; }
+    @keyframes tabSlide {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== Cards ===== */
+    .sp-card {
+      background: var(--sp-surface);
+      border: 1px solid var(--sp-border);
+      border-radius: var(--sp-r-lg);
+      padding: var(--sp-s3);
+    }
+
+    .sp-card-hd {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--sp-s2);
+    }
+
+    .sp-card-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--sp-text);
+    }
+    .sp-card-title svg { width: 13px; height: 13px; color: var(--sp-primary); }
+
+    .sp-badge {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--sp-text-muted);
+    }
+
+    /* ===== Hero Stuck Card ===== */
+    .sp-stuck-card {
+      background: linear-gradient(180deg, rgba(245,158,11,.07) 0%, rgba(22,24,42,.95) 100%);
+      border: 1px solid var(--sp-warning-bdr);
+      border-left: 4px solid var(--sp-warning);
+      border-radius: var(--sp-r-lg);
+      padding: var(--sp-s3);
+      animation: stuckSpring 340ms var(--sp-ease-spring), amberPulse 2s infinite ease-in-out;
+    }
+
+    @keyframes stuckSpring {
+      from { opacity: 0; transform: translateY(-10px) scale(.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes amberPulse {
+      0%,100% { border-left-color: #F59E0B; box-shadow: 0 0 10px rgba(245,158,11,.15); }
+      50%      { border-left-color: #FBBF24; box-shadow: 0 0 20px rgba(245,158,11,.35); }
+    }
+
+    .sp-stuck-card.dismissing {
+      animation: stuckOut 220ms var(--sp-ease) forwards;
+    }
+    @keyframes stuckOut {
+      to { opacity: 0; transform: translateY(-8px) scale(.96); max-height: 0; padding: 0; margin: 0; }
+    }
+
+    .sp-stuck-hd {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--sp-s2);
+    }
+
+    .sp-stuck-title {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--sp-warning);
+    }
+    .sp-stuck-title svg { width: 14px; height: 14px; }
+
+    /* Signal Chips */
+    .sp-signals {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: var(--sp-s3);
+    }
+
+    .sp-sig-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 7px;
+      border-radius: var(--sp-r-sm);
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--sp-border);
+      font-size: 11px;
+      color: var(--sp-text-sec);
+      animation: chipIn 240ms var(--sp-ease) backwards;
+    }
+    .sp-sig-chip:nth-child(1) { animation-delay: 40ms; }
+    .sp-sig-chip:nth-child(2) { animation-delay: 100ms; }
+    .sp-sig-chip:nth-child(3) { animation-delay: 160ms; }
+    .sp-sig-chip svg { width: 11px; height: 11px; color: var(--sp-warning); }
+
+    @keyframes chipIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== Buttons ===== */
+    .sp-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 6px 12px;
+      border-radius: var(--sp-r-md);
+      font-size: 12px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      border: 1px solid transparent;
+      outline: none;
+      transition: all var(--sp-dur-fast) var(--sp-ease);
+    }
+    .sp-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+    .sp-btn:hover { transform: translateY(-1px); }
+    .sp-btn:active { transform: scale(.98); }
+    .sp-btn:focus-visible { outline: 2px solid var(--sp-focus); outline-offset: 2px; }
+    .sp-btn:disabled { opacity: .45; cursor: not-allowed; pointer-events: none; }
+
+    .sp-btn-full { width: 100%; }
+
+    .sp-btn-primary {
+      background: var(--sp-primary-grad);
+      color: #FFF;
+      box-shadow: 0 2px 8px var(--sp-primary-glow);
+    }
+    .sp-btn-primary:hover { box-shadow: 0 4px 14px var(--sp-primary-glow); }
+
+    .sp-btn-secondary {
+      background: var(--sp-surface-el);
+      border-color: var(--sp-border);
+      color: var(--sp-text);
+    }
+    .sp-btn-secondary:hover { background: rgba(255,255,255,.1); }
+
+    .sp-btn-ghost {
+      background: transparent;
+      color: var(--sp-text-sec);
+    }
+    .sp-btn-ghost:hover { background: var(--sp-surface-el); color: var(--sp-text); }
+
+    .sp-btn-warning {
+      background: rgba(245,158,11,.1);
+      border-color: var(--sp-warning-bdr);
+      color: var(--sp-warning);
+    }
+    .sp-btn-warning:hover { background: rgba(245,158,11,.18); }
+
+    .sp-btn-success {
+      background: var(--sp-success-bg);
+      border-color: var(--sp-success-bdr);
+      color: var(--sp-success);
+    }
+    .sp-btn-success:hover { background: rgba(34,197,94,.2); }
+
+    .sp-btn-row {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-s2);
+    }
+    .sp-btn-row > * { flex: 1; }
+
+    /* Spinner */
+    .sp-spinner {
+      width: 13px;
+      height: 13px;
+      border: 2px solid rgba(255,255,255,.2);
+      border-top-color: #FFF;
+      border-radius: 50%;
+      animation: spin 700ms linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== Textarea ===== */
+    .sp-textarea {
+      width: 100%;
+      min-height: 60px;
+      padding: 8px;
+      background: var(--vscode-input-background, #090A12);
+      border: 1px solid var(--vscode-input-border, var(--sp-border));
+      border-radius: var(--sp-r-md);
+      color: var(--sp-text);
+      font-family: var(--vscode-editor-font-family, "Consolas", "JetBrains Mono", monospace);
+      font-size: 12px;
+      line-height: 1.6;
+      resize: vertical;
+      outline: none;
+      transition: border-color var(--sp-dur-fast) var(--sp-ease),
+                  box-shadow var(--sp-dur-fast) var(--sp-ease);
+    }
+    .sp-textarea:focus {
+      border-color: var(--sp-primary);
+      box-shadow: 0 0 0 2px var(--sp-primary-glow);
+    }
+    .sp-textarea::placeholder { color: var(--sp-text-muted); }
+
+    .sp-ta-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--sp-text-muted);
+      margin-top: 3px;
+    }
+
+    /* Tooltip */
+    .sp-has-tooltip { position: relative; }
+    .sp-tooltip {
+      position: absolute;
+      bottom: calc(100% + 5px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0B0C15;
+      border: 1px solid rgba(255,255,255,.12);
+      padding: 4px 8px;
+      border-radius: var(--sp-r-sm);
+      font-size: 11px;
+      color: var(--sp-text-sec);
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity var(--sp-dur-fast) var(--sp-ease);
+      z-index: 50;
+    }
+    .sp-has-tooltip:hover .sp-tooltip { opacity: 1; }
+
+    /* ===== Typing Indicator ===== */
+    .sp-typing {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 10px;
+      background: var(--sp-surface-el);
+      border: 1px solid var(--sp-border);
+      border-radius: var(--sp-r-md);
+      margin-top: var(--sp-s2);
+    }
+    .sp-typing-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--sp-primary);
+      animation: dotBounce 1.2s infinite ease-in-out;
+    }
+    .sp-typing-dot:nth-child(2) { animation-delay: 150ms; }
+    .sp-typing-dot:nth-child(3) { animation-delay: 300ms; }
+    @keyframes dotBounce {
+      0%,80%,100% { transform: translateY(0); opacity: .35; }
+      40%          { transform: translateY(-4px); opacity: 1; }
+    }
+
+    /* ===== Response Bubble ===== */
+    .sp-bubble {
+      background: var(--sp-surface-el);
+      border: 1px solid var(--sp-border);
+      border-radius: var(--sp-r-md);
+      padding: var(--sp-s3);
+      margin-top: var(--sp-s2);
+      animation: bubbleUp var(--sp-dur-base) var(--sp-ease);
+    }
+    @keyframes bubbleUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== Code Block ===== */
+    .sp-code-wrap {
+      position: relative;
+      margin: var(--sp-s2) 0;
+      background: rgba(0,0,0,.3);
+      border: 1px solid var(--sp-border);
+      border-radius: var(--sp-r-md);
+      overflow: hidden;
+    }
+    .sp-code-hd {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 8px;
+      background: rgba(255,255,255,.03);
+      border-bottom: 1px solid var(--sp-border);
+      font-size: 11px;
+      color: var(--sp-text-muted);
+    }
+    .sp-code-pre {
+      padding: 8px;
+      overflow-x: auto;
+      font-family: "Consolas","JetBrains Mono",monospace;
+      font-size: 11.5px;
+      line-height: 1.6;
+      color: #E2E8F0;
+    }
+    .sp-copy-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      color: var(--sp-text-sec);
+      font-size: 11px;
+      padding: 2px 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      transition: all var(--sp-dur-fast) var(--sp-ease);
+      font-family: inherit;
+    }
+    .sp-copy-btn:hover { background: rgba(255,255,255,.08); color: #FFF; }
+    .sp-copy-btn.copied { color: var(--sp-success); }
+    .sp-copy-btn svg { width: 11px; height: 11px; }
+
+    /* Feedback row */
+    .sp-feedback { display: flex; align-items: center; justify-content: flex-end; gap: 5px; margin-top: var(--sp-s2); }
+    .sp-icon-btn {
+      background: transparent;
+      border: none;
+      color: var(--sp-text-muted);
+      padding: 3px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: inline-flex;
+      transition: all var(--sp-dur-fast) var(--sp-ease);
+    }
+    .sp-icon-btn:hover { color: var(--sp-text); background: var(--sp-surface-el); }
+    .sp-icon-btn.active { color: var(--sp-primary); }
+    .sp-icon-btn svg { width: 12px; height: 12px; }
+
+    /* ===== Hints List Bubbles ===== */
+    .sp-hint-bubble {
+      background: var(--sp-surface-el);
+      border: 1px solid var(--sp-border);
+      border-radius: var(--sp-r-md);
+      padding: var(--sp-s2) var(--sp-s3);
+      animation: bubbleUp var(--sp-dur-base) var(--sp-ease);
+    }
+    .sp-hint-lv {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--sp-primary);
+      margin-bottom: 4px;
+    }
+
+    /* Active File Card */
+    .sp-file-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 8px;
+      border-radius: var(--sp-r-full);
+      background: var(--sp-surface-el);
+      border: 1px solid var(--sp-border);
+      font-size: 11px;
+      font-family: "Consolas","JetBrains Mono",monospace;
+      color: var(--sp-text-sec);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 160px;
+    }
+
+    /* Shimmer for review button */
+    .sp-shimmer {
+      position: relative;
+      overflow: hidden;
+    }
+    .sp-shimmer::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.15), transparent);
+      animation: shimmerMove 1.5s infinite;
+    }
+    @keyframes shimmerMove {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    /* ===== Suggestions ===== */
+    .sp-sug-card {
+      background: var(--sp-surface);
+      border: 1px solid var(--sp-border);
+      border-radius: var(--sp-r-lg);
+      padding: var(--sp-s3);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: border-color var(--sp-dur-base) var(--sp-ease);
+    }
+    .sp-sug-card:hover { border-color: rgba(255,255,255,.16); }
+
+    .sp-sug-hd {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .sp-sug-issue {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--sp-text);
+    }
+    .sp-sug-issue svg { width: 13px; height: 13px; color: var(--sp-warning); }
+
+    .sp-comp-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--sp-success-bg);
+      border: 1px solid var(--sp-success-bdr);
+      color: var(--sp-success);
+      font-family: "Consolas","JetBrains Mono",monospace;
+      font-size: 10.5px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .sp-sug-why {
+      font-size: 11.5px;
+      color: var(--sp-text-sec);
+    }
+    .sp-sug-try {
+      font-size: 11.5px;
+      color: var(--sp-text-muted);
+    }
+    .sp-sug-try strong { color: var(--sp-text); }
+
+    /* Empty State */
+    .sp-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 28px 12px;
+      color: var(--sp-text-sec);
+    }
+    .sp-empty-icon { width: 40px; height: 40px; color: var(--sp-text-muted); margin-bottom: var(--sp-s2); stroke-width: 1.5; }
+    .sp-empty-title { font-size: 12px; font-weight: 600; color: var(--sp-text); margin-bottom: 3px; }
+    .sp-empty-text { font-size: 11px; color: var(--sp-text-muted); max-width: 220px; margin-bottom: var(--sp-s3); }
+
+    /* ===== Report: KPI Grid ===== */
+    .sp-kpi-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--sp-s2);
+    }
+    .sp-kpi-card {
+      background: var(--sp-surface-el);
+      border: 1px solid var(--sp-border);
+      border-radius: var(--sp-r-md);
+      padding: 9px 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .sp-kpi-hd {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--sp-text-muted);
+      font-size: 11px;
+    }
+    .sp-kpi-hd svg { width: 12px; height: 12px; }
+    .sp-kpi-val {
+      font-size: 20px;
+      font-weight: 700;
+      font-family: "Consolas","JetBrains Mono",monospace;
+      color: var(--sp-text);
+    }
+
+    /* Mini Weekly Chart */
+    .sp-chart {
+      background: var(--sp-surface-el);
+      border: 1px solid var(--sp-border);
+      border-radius: var(--sp-r-lg);
+      padding: 10px;
+    }
+    .sp-chart-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--sp-text-sec);
+      margin-bottom: 8px;
+    }
+    .sp-bars {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      height: 56px;
+      gap: 5px;
+    }
+    .sp-bar-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-end;
+      cursor: pointer;
+    }
+    .sp-bar-fill {
+      width: 100%;
+      max-width: 16px;
+      border-radius: 3px 3px 0 0;
+      background: rgba(139,92,246,.3);
+      border: 1px solid rgba(139,92,246,.5);
+      transition: all var(--sp-dur-base) var(--sp-ease);
+    }
+    .sp-bar-col:hover .sp-bar-fill { background: var(--sp-primary); box-shadow: 0 0 8px var(--sp-primary-glow); }
+    .sp-bar-lbl { font-size: 10px; color: var(--sp-text-muted); margin-top: 3px; }
+
+    /* Gate Summary Chips */
+    .sp-gate-row { display: flex; flex-wrap: wrap; gap: 5px; margin: var(--sp-s2) 0; }
+    .sp-gate-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 2px 7px;
+      border-radius: var(--sp-r-full);
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .sp-gate-chip.verified { background: var(--sp-success-bg); border: 1px solid var(--sp-success-bdr); color: var(--sp-success); }
+    .sp-gate-chip.low { background: var(--sp-warning-bg); border: 1px solid var(--sp-warning-bdr); color: var(--sp-warning); }
+    .sp-gate-chip.rejected { background: var(--sp-danger-bg); border: 1px solid var(--sp-danger-bdr); color: var(--sp-danger); }
+
+    /* Claims list */
+    .sp-claim-item { border-bottom: 1px solid var(--sp-border); padding: 8px 0; }
+    .sp-claim-item:last-child { border-bottom: none; }
+    .sp-claim-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; margin-bottom: 3px; }
+    .sp-claim-text { font-size: 11.5px; color: var(--sp-text); }
+    .sp-claim-text.rej { text-decoration: line-through; color: var(--sp-text-muted); }
+    .sp-ev-btn { background: none; border: none; font-size: 11px; color: var(--sp-primary); cursor: pointer; display: inline-flex; align-items: center; gap: 3px; padding: 0; font-family: inherit; }
+    .sp-evidence {
+      display: none;
+      margin-top: 5px;
+      padding: 6px;
+      background: rgba(0,0,0,.25);
+      border: 1px solid var(--sp-border);
+      border-radius: 4px;
+      font-size: 10.5px;
+      font-family: "Consolas","JetBrains Mono",monospace;
+      color: var(--sp-text-sec);
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .sp-evidence.open { display: block; }
+
+    /* ===== Skeleton Shimmer ===== */
+    .sp-skel {
+      background: linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.09) 50%,rgba(255,255,255,.04) 75%);
+      background-size: 200% 100%;
+      animation: skelShimmer 1.5s infinite linear;
+      border-radius: 4px;
+    }
+    @keyframes skelShimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ===== Offline Notice ===== */
+    .sp-offline {
+      background: var(--sp-danger-bg);
+      border: 1px solid var(--sp-danger-bdr);
+      border-left: 3px solid var(--sp-danger);
+      border-radius: var(--sp-r-md);
+      padding: var(--sp-s3);
+    }
+    .sp-offline-title { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: var(--sp-danger); margin-bottom: 4px; }
+    .sp-offline-title svg { width: 13px; height: 13px; }
+
+    /* ===== Toast ===== */
+    .sp-toast-wrap {
+      position: fixed;
+      bottom: var(--sp-s3);
+      left: var(--sp-s3);
+      right: var(--sp-s3);
+      z-index: 100;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-s2);
+    }
+    .sp-toast {
+      background: var(--sp-surface-el);
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: 0 8px 24px rgba(0,0,0,.4);
+      padding: 9px 12px;
+      border-radius: var(--sp-r-md);
+      font-size: 12px;
+      color: #FFF;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      animation: toastUp 250ms var(--sp-ease-spring);
+      pointer-events: auto;
+    }
+    @keyframes toastUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Utility */
+    .hidden { display: none !important; }
+    code {
+      font-family: "Consolas","JetBrains Mono",monospace;
+      font-size: 11px;
+      background: rgba(255,255,255,.08);
+      padding: 2px 5px;
+      border-radius: 4px;
+      color: var(--sp-primary);
+    }
+
+    /* Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0ms !important; transition-duration: 0ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Inline Lucide SVG Symbol Library (offline, CSP safe) -->
+  <svg style="display:none;" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <symbol id="i-zap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+      <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+      <symbol id="i-compass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></symbol>
+      <symbol id="i-keyboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="M6 8h.001M10 8h.001M14 8h.001M18 8h.001M8 12h.001M12 12h.001M16 12h.001M7 16h10"/></symbol>
+      <symbol id="i-sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3z"/></symbol>
+      <symbol id="i-lightbulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-1 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6M10 22h4"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+      <symbol id="i-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></symbol>
+      <symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+      <symbol id="i-thumbs-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12M15 10.5a3 3 0 0 0-3-3h-1.5a1.5 1.5 0 0 1-1.5-1.5V4a2 2 0 0 0-2-2h-.5L4 10v12h11a3 3 0 0 0 3-3v-4.5a3 3 0 0 0-3-3Z"/></symbol>
+      <symbol id="i-thumbs-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 14V2M9 13.5a3 3 0 0 0 3 3h1.5a1.5 1.5 0 0 1 1.5 1.5V20a2 2 0 0 0 2 2h.5L20 14V2H9a3 3 0 0 0-3 3v4.5a3 3 0 0 0 3 3Z"/></symbol>
+      <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></symbol>
+      <symbol id="i-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></symbol>
+      <symbol id="i-bar-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></symbol>
+      <symbol id="i-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></symbol>
+    </defs>
+  </svg>
+
+  <div class="sp-shell">
+    <!-- ===== Header ===== -->
+    <header class="sp-header">
+      <div class="sp-brand">
+        <svg class="sp-brand-icon"><use href="#i-zap"/></svg>
+        StuckPoint
+      </div>
+      <div class="sp-header-meta">
+        <div class="sp-timer-chip" title="Active session duration">
+          <svg><use href="#i-clock"/></svg>
+          <span id="session-timer">00:00</span>
+        </div>
+        <div id="ctx-chip" class="sp-ctx-chip">
+          <div id="status-dot" class="sp-dot"></div>
+          <span id="ctx-text">Project</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ===== Segmented Tabs ===== -->
+    <nav class="sp-tabs-wrap" role="tablist" aria-label="StuckPoint navigation">
+      <div class="sp-tab-slider" id="tab-slider"></div>
+      <button class="sp-tab-btn active" id="tb-now" role="tab" aria-selected="true" aria-controls="panel-now" data-tab="now">Now</button>
+      <button class="sp-tab-btn" id="tb-sug" role="tab" aria-selected="false" aria-controls="panel-sug" data-tab="sug">
+        Suggestions
+        <span id="sug-badge" class="sp-tab-badge" style="display:none;">0</span>
+      </button>
+      <button class="sp-tab-btn" id="tb-rep" role="tab" aria-selected="false" aria-controls="panel-rep" data-tab="rep">Report</button>
+    </nav>
+
+    <!-- ===== NOW Panel ===== -->
+    <section id="panel-now" class="sp-panel active" role="tabpanel" aria-labelledby="tb-now">
+      <!-- Hero Stuck Alert -->
+      <article id="stuckAlert" class="sp-stuck-card hidden" aria-live="assertive">
+        <div class="sp-stuck-hd">
+          <div class="sp-stuck-title">
+            <svg><use href="#i-alert"/></svg>
+            Stuck Detected
+          </div>
+        </div>
+        <div class="sp-signals" id="signals-row">
+          <div class="sp-sig-chip"><svg><use href="#i-clock"/></svg><span id="sig-time">34m on problem</span></div>
+          <div class="sp-sig-chip"><svg><use href="#i-compass"/></svg><span id="sig-trips">3 external searches</span></div>
+          <div class="sp-sig-chip"><svg><use href="#i-keyboard"/></svg><span id="sig-typing">Low typing rate</span></div>
+        </div>
+        <p id="stuckText" style="font-size:11.5px;color:var(--sp-text-sec);margin-bottom:10px;line-height:1.5;"></p>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <button class="sp-btn sp-btn-primary sp-btn-full" id="btnHint">
+            <svg><use href="#i-sparkles"/></svg>
+            Give me a hint
+          </button>
+          <div class="sp-btn-row">
+            <button class="sp-btn sp-btn-ghost" id="btnSnooze">Not now</button>
+            <button class="sp-btn sp-btn-ghost" id="btnDismiss">I'm fine</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Hints Container -->
+      <article id="hintCard" class="sp-card hidden">
+        <div class="sp-card-hd">
+          <div class="sp-card-title">
+            <svg><use href="#i-lightbulb"/></svg>
+            Progressive Guidance
+          </div>
+          <span class="sp-badge" id="hintLevelBadge">Level 1 of 3</span>
+        </div>
+        <div id="hintList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;"></div>
+        <div class="sp-btn-row">
+          <button class="sp-btn sp-btn-primary" id="btnNextHint">Next hint</button>
+          <button class="sp-btn sp-btn-success" id="btnSolved">
+            <svg><use href="#i-check"/></svg>
+            Solved
+          </button>
+        </div>
+      </article>
+
+      <!-- Ask StuckPoint Card -->
+      <article class="sp-card">
+        <div class="sp-card-hd">
+          <div class="sp-card-title">
+            <svg><use href="#i-sparkles"/></svg>
+            Ask StuckPoint
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <textarea id="projectQuery" class="sp-textarea" placeholder="Ask a question, paste an error, or describe where you are stuck…"></textarea>
+          <div class="sp-ta-footer">
+            <span>Ctrl+Enter to submit</span>
+            <span id="char-count">0 chars</span>
+          </div>
+        </div>
+        <div class="sp-btn-row" style="margin-top:8px;">
+          <button class="sp-btn sp-btn-primary" id="btnAskHint">
+            <svg><use href="#i-sparkles"/></svg>
+            Hint
+          </button>
+          <div class="sp-has-tooltip" style="flex:1;display:flex;">
+            <button class="sp-btn sp-btn-warning" id="btnFullFix" style="width:100%;">Full fix</button>
+            <div class="sp-tooltip">Full fix provides complete solution and may reduce learning retention</div>
+          </div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div id="typingIndicator" class="sp-typing hidden">
+          <div class="sp-typing-dot"></div>
+          <div class="sp-typing-dot"></div>
+          <div class="sp-typing-dot"></div>
+          <span style="font-size:11px;color:var(--sp-text-muted);margin-left:6px;">Formulating hint…</span>
+        </div>
+
+        <!-- Response Bubble -->
+        <div id="projectHelpResult" class="sp-bubble hidden" aria-live="polite">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;">
+            <span style="font-size:11px;font-weight:600;color:var(--sp-primary);" id="responseSender">StuckPoint Assistant</span>
+            <span style="font-size:11px;color:var(--sp-text-muted);">Just now</span>
+          </div>
+          <div id="responseContent" style="font-size:12px;line-height:1.6;color:var(--sp-text);"></div>
+          <div class="sp-feedback">
+            <button class="sp-icon-btn" id="thumbUp" title="Helpful" aria-label="Mark as helpful">
+              <svg><use href="#i-thumbs-up"/></svg>
+            </button>
+            <button class="sp-icon-btn" id="thumbDown" title="Not helpful" aria-label="Mark as not helpful">
+              <svg><use href="#i-thumbs-down"/></svg>
+            </button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Active File Card (VS Code specific) -->
+      <article class="sp-card" id="activeFileCard">
+        <div class="sp-card-hd">
+          <div class="sp-card-title">
+            <svg><use href="#i-file"/></svg>
+            Active File
+          </div>
+          <span id="activeFileName" class="sp-file-chip">Loading…</span>
+        </div>
+        <button class="sp-btn sp-btn-secondary sp-btn-full" id="btnReviewFile" style="margin-top:4px;">
+          <svg><use href="#i-zap"/></svg>
+          Review file now
+        </button>
+      </article>
+
+      <!-- Practice Notice -->
+      <div id="practiceNotice" class="sp-card hidden" style="border-left:3px solid var(--sp-info);background:rgba(56,189,248,.07);">
+        <p style="font-size:11.5px;color:var(--sp-text-sec);">
+          Practice mode — Code solutions are hidden to protect your learning.
+          Mark this problem solved to unlock pattern access.
+        </p>
+      </div>
+
+      <!-- Engine Offline -->
+      <div id="engineOffline" class="sp-offline hidden">
+        <div class="sp-offline-title">
+          <svg><use href="#i-alert"/></svg>
+          Engine Offline
+        </div>
+        <p style="font-size:11.5px;color:var(--sp-text-sec);">
+          Launch the local detector:
+          <code>python -m stuckpoint serve</code>
+        </p>
+      </div>
+    </section>
+
+    <!-- ===== SUGGESTIONS Panel ===== -->
+    <section id="panel-sug" class="sp-panel" role="tabpanel" aria-labelledby="tb-sug">
+      <div id="sugList" style="display:flex;flex-direction:column;gap:8px;">
+        <div class="sp-empty">
+          <svg class="sp-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+          </svg>
+          <div class="sp-empty-title">No patterns detected yet</div>
+          <p class="sp-empty-text">Save a file or write more code and StuckPoint will spot optimizations.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== REPORT Panel ===== -->
+    <section id="panel-rep" class="sp-panel" role="tabpanel" aria-labelledby="tb-rep">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <span style="font-size:12px;font-weight:600;">Skills Report</span>
+        <button class="sp-btn sp-btn-secondary" id="btnRefreshReport" style="padding:3px 9px;font-size:11px;">
+          <svg><use href="#i-refresh"/></svg>
+          Refresh
+        </button>
+      </div>
+
+      <div class="sp-kpi-grid">
+        <div class="sp-kpi-card">
+          <div class="sp-kpi-hd"><span>Problems</span><svg><use href="#i-check-circle"/></svg></div>
+          <div class="sp-kpi-val" id="kpiProblems">–</div>
+        </div>
+        <div class="sp-kpi-card">
+          <div class="sp-kpi-hd"><span>Active time</span><svg><use href="#i-clock"/></svg></div>
+          <div class="sp-kpi-val" id="kpiMinutes">–</div>
+        </div>
+        <div class="sp-kpi-card">
+          <div class="sp-kpi-hd"><span>Stuck episodes</span><svg><use href="#i-alert"/></svg></div>
+          <div class="sp-kpi-val" id="kpiEpisodes">–</div>
+        </div>
+        <div class="sp-kpi-card">
+          <div class="sp-kpi-hd"><span>Hints used</span><svg><use href="#i-lightbulb"/></svg></div>
+          <div class="sp-kpi-val" id="kpiHints">–</div>
+        </div>
+      </div>
+
+      <!-- Weekly mini bar chart -->
+      <div class="sp-chart">
+        <div class="sp-chart-title">
+          <span>Stuck episodes — past 7 days</span>
+          <svg style="width:12px;height:12px;"><use href="#i-bar-chart"/></svg>
+        </div>
+        <div class="sp-bars" id="weeklyChart">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Gate summary -->
+      <div class="sp-card">
+        <div class="sp-card-title" style="margin-bottom:6px;">Gate summary</div>
+        <div class="sp-gate-row">
+          <span class="sp-gate-chip verified" id="gateVerified">✓ 0 verified</span>
+          <span class="sp-gate-chip low" id="gateLow">⚠ 0 low confidence</span>
+          <span class="sp-gate-chip rejected" id="gateRejected">✗ 0 rejected</span>
+        </div>
+        <div id="claimsList"></div>
+      </div>
+
+      <!-- Empty state -->
+      <div id="reportEmpty" class="sp-empty" style="display:none;">
+        <svg class="sp-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+        <div class="sp-empty-title">No data yet</div>
+        <p class="sp-empty-text">Complete a session and click Refresh to see your skills report.</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- Floating Toast Container -->
+  <div id="toastWrap" class="sp-toast-wrap" aria-live="polite"></div>
+
+  <script nonce="{{NONCE}}">
+    /* =====================================================
+       StuckPoint VS Code Webview Script
+       Preserves ALL message-passing contract with extension.js.
+       Adds visual polish layer only.
+    ===================================================== */
+    (function () {
+      const vscode = acquireVsCodeApi();
+      let sessionSec = 0;
+
+      // ===== Session Timer =====
+      setInterval(() => {
+        sessionSec++;
+        const m = Math.floor(sessionSec / 60), s = sessionSec % 60;
+        const el = document.getElementById('session-timer');
+        if (el) el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      }, 1000);
+
+      // ===== Sliding Tab Indicator =====
+      const tabs  = document.querySelectorAll('.sp-tab-btn');
+      const panels = document.querySelectorAll('.sp-panel');
+      const slider = document.getElementById('tab-slider');
+
+      function positionSlider(btn) {
+        if (!slider || !btn) return;
+        const parentRect = btn.parentElement.getBoundingClientRect();
+        const r = btn.getBoundingClientRect();
+        slider.style.transform = `translateX(${r.left - parentRect.left}px)`;
+        slider.style.width = `${r.width}px`;
+      }
+
+      function switchTab(name) {
+        tabs.forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+        panels.forEach(p => p.classList.remove('active'));
+        const btn = document.getElementById(`tb-${name}`);
+        const panel = document.getElementById(`panel-${name}`);
+        if (btn) { btn.classList.add('active'); btn.setAttribute('aria-selected','true'); positionSlider(btn); }
+        if (panel) panel.classList.add('active');
+        if (name === 'rep') vscode.postMessage({ type: 'fetch_report' });
+      }
+
+      tabs.forEach(t => { t.addEventListener('click', () => switchTab(t.dataset.tab)); });
+      window.addEventListener('resize', () => positionSlider(document.querySelector('.sp-tab-btn.active')));
+      setTimeout(() => positionSlider(document.querySelector('.sp-tab-btn.active')), 120);
+
+      // ===== Toast =====
+      function showToast(msg) {
+        const wrap = document.getElementById('toastWrap');
+        if (!wrap) return;
+        const t = document.createElement('div');
+        t.className = 'sp-toast';
+        t.innerHTML = `<svg style="width:13px;height:13px;color:var(--sp-primary);"><use href="#i-zap"/></svg><span>${escHtml(msg)}</span>`;
+        wrap.appendChild(t);
+        setTimeout(() => {
+          t.style.transition = 'opacity 180ms, transform 180ms';
+          t.style.opacity = '0';
+          t.style.transform = 'translateY(8px)';
+          setTimeout(() => t.remove(), 200);
+        }, 3000);
+      }
+
+      // ===== Hint Flow (calls extension host) =====
+      function askHint() { vscode.postMessage({ type: 'request_hint' }); }
+      function snoozeAlert() {
+        dismissCard('stuckAlert', () => vscode.postMessage({ type: 'snooze_signal' }));
+      }
+      function dismissAlertCard() {
+        dismissCard('stuckAlert', () => vscode.postMessage({ type: 'dismiss_signal' }));
+      }
+      function markSolved() { vscode.postMessage({ type: 'mark_solved' }); }
+      function triggerReview() {
+        const btn = document.getElementById('btnReviewFile');
+        if (btn) btn.classList.add('sp-shimmer');
+        vscode.postMessage({ type: 'trigger_review' });
+        setTimeout(() => { if (btn) btn.classList.remove('sp-shimmer'); }, 2000);
+      }
+
+      function dismissCard(id, cb) {
+        const card = document.getElementById(id);
+        if (!card) return;
+        card.classList.add('dismissing');
+        setTimeout(() => { card.classList.add('hidden'); card.classList.remove('dismissing'); if (cb) cb(); }, 230);
+      }
+
+      document.getElementById('btnHint').addEventListener('click', askHint);
+      document.getElementById('btnSnooze').addEventListener('click', snoozeAlert);
+      document.getElementById('btnDismiss').addEventListener('click', dismissAlertCard);
+      document.getElementById('btnNextHint').addEventListener('click', askHint);
+      document.getElementById('btnSolved').addEventListener('click', markSolved);
+      document.getElementById('btnReviewFile').addEventListener('click', triggerReview);
+
+      // ===== Ask StuckPoint (Textarea) =====
+      const textarea = document.getElementById('projectQuery');
+      const charCount = document.getElementById('char-count');
+      if (textarea) {
+        textarea.addEventListener('input', () => {
+          textarea.style.height = 'auto';
+          textarea.style.height = `${Math.min(textarea.scrollHeight, 160)}px`;
+          if (charCount) charCount.textContent = `${textarea.value.length} chars`;
+        });
+        textarea.addEventListener('keydown', e => {
+          if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('btnAskHint').click();
+          }
+        });
+      }
+
+      function askProjectHelp(full) {
+        const q = document.getElementById('projectQuery').value;
+        const typingEl = document.getElementById('typingIndicator');
+        const resultEl = document.getElementById('projectHelpResult');
+        if (typingEl) typingEl.classList.remove('hidden');
+        if (resultEl) resultEl.classList.add('hidden');
+        vscode.postMessage({ type: 'project_help', query: q, full });
+      }
+
+      document.getElementById('btnAskHint').addEventListener('click', () => askProjectHelp(false));
+      document.getElementById('btnFullFix').addEventListener('click', () => askProjectHelp(true));
+
+      // Thumbs feedback
+      const thumbUp = document.getElementById('thumbUp');
+      const thumbDown = document.getElementById('thumbDown');
+      if (thumbUp) thumbUp.addEventListener('click', () => {
+        thumbUp.classList.toggle('active');
+        if (thumbDown) thumbDown.classList.remove('active');
+        showToast('Thanks for the feedback!');
+      });
+      if (thumbDown) thumbDown.addEventListener('click', () => {
+        thumbDown.classList.toggle('active');
+        if (thumbUp) thumbUp.classList.remove('active');
+        showToast('Noted — we will improve future hints.');
+      });
+
+      // ===== Refresh Report =====
+      document.getElementById('btnRefreshReport').addEventListener('click', () => {
+        vscode.postMessage({ type: 'fetch_report' });
+      });
+
+      // ===== Messages FROM Extension Host =====
+      window.addEventListener('message', event => {
+        const msg = event.data;
+        switch (msg.type) {
+          case 'state_update':
+            onStateUpdate(msg);
+            break;
+          case 'hint_received':
+            onHintReceived(msg);
+            break;
+          case 'project_help_received':
+            onProjectHelp(msg);
+            break;
+          case 'report_data':
+            renderReport(msg.report);
+            break;
+          case 'solved_success':
+            document.getElementById('hintCard').classList.add('hidden');
+            showToast('Problem marked solved! Patterns unlocked.');
+            break;
+        }
+      });
+
+      function onStateUpdate(msg) {
+        const dot = document.getElementById('status-dot');
+        const ctxText = document.getElementById('ctx-text');
+        const offline = document.getElementById('engineOffline');
+        const practice = document.getElementById('practiceNotice');
+        const stuckAlert = document.getElementById('stuckAlert');
+        const fileName = document.getElementById('activeFileName');
+
+        if (dot) dot.className = `sp-dot${msg.online ? '' : ' offline'}`;
+        if (ctxText) ctxText.textContent = msg.online ? (msg.context || 'Project') : 'Offline';
+        if (offline) offline.classList.toggle('hidden', msg.online);
+        if (practice) practice.classList.toggle('hidden', msg.context !== 'practice');
+        if (fileName) fileName.textContent = msg.fileName || 'No active file';
+
+        // Stuck signal
+        if (msg.signal && msg.signal.status !== 'dismissed' && msg.signal.status !== 'snoozed') {
+          if (dot) dot.className = 'sp-dot amber';
+          if (stuckAlert) {
+            const text = document.getElementById('stuckText');
+            if (text) text.textContent = msg.signal.measured_line || 'Stuck detected';
+            stuckAlert.classList.remove('hidden');
+          }
+        } else {
+          if (stuckAlert) stuckAlert.classList.add('hidden');
+          if (dot && msg.online) dot.className = 'sp-dot';
+        }
+
+        // Suggestions
+        renderSuggestions(msg.suggestions || []);
+      }
+
+      function onHintReceived(msg) {
+        const card = document.getElementById('hintCard');
+        const list = document.getElementById('hintList');
+        const badge = document.getElementById('hintLevelBadge');
+        if (card) card.classList.remove('hidden');
+        if (badge) badge.textContent = `Level ${msg.level} of 3`;
+        if (msg.level >= 3) {
+          const nextBtn = document.getElementById('btnNextHint');
+          if (nextBtn) nextBtn.classList.add('hidden');
+        }
+        if (list) {
+          const bubble = document.createElement('div');
+          bubble.className = 'sp-hint-bubble';
+          bubble.innerHTML = `<div class="sp-hint-lv">Hint ${msg.level}</div><div>${renderMd(msg.hint)}</div>`;
+          list.appendChild(bubble);
+          wireCodeBlocks(bubble);
+        }
+        const stuckAlert = document.getElementById('stuckAlert');
+        if (stuckAlert) stuckAlert.classList.add('hidden');
+      }
+
+      function onProjectHelp(msg) {
+        const typingEl = document.getElementById('typingIndicator');
+        const resultEl = document.getElementById('projectHelpResult');
+        const content  = document.getElementById('responseContent');
+        const sender   = document.getElementById('responseSender');
+        if (typingEl) typingEl.classList.add('hidden');
+        if (resultEl) resultEl.classList.remove('hidden');
+        if (sender) sender.textContent = msg.isCode ? 'Full fix (review carefully)' : 'StuckPoint Assistant';
+        if (content) {
+          content.innerHTML = renderMd(msg.text);
+          wireCodeBlocks(resultEl);
+        }
+      }
+
+      // ===== Render Suggestions =====
+      function renderSuggestions(sugs) {
+        const list = document.getElementById('sugList');
+        const badge = document.getElementById('sug-badge');
+        if (badge) {
+          badge.style.display = sugs.length ? 'inline-flex' : 'none';
+          badge.textContent = sugs.length;
+        }
+        if (!list) return;
+
+        if (!sugs.length) {
+          list.innerHTML = `<div class="sp-empty">
+            <svg class="sp-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+            <div class="sp-empty-title">No patterns detected yet</div>
+            <p class="sp-empty-text">Save a file or write more code and StuckPoint will spot optimizations.</p>
+          </div>`;
+          return;
+        }
+
+        list.innerHTML = sugs.map((s, i) => {
+          const comp = s.complexity_before && s.complexity_after
+            ? `<span class="sp-comp-badge">${escHtml(s.complexity_before)} → ${escHtml(s.complexity_after)}</span>` : '';
+          const code = s.replacement
+            ? `<div class="sp-code-wrap">
+                 <div class="sp-code-hd">
+                   <span>Replacement</span>
+                   <button class="sp-copy-btn" data-code="${escHtml(s.replacement)}">
+                     <svg><use href="#i-copy"/></svg><span>Copy</span>
+                   </button>
+                 </div>
+                 <pre class="sp-code-pre"><code>${escHtml(s.replacement)}</code></pre>
+               </div>
+               <button class="sp-btn sp-btn-secondary sp-btn-full" data-apply="${i}" style="font-size:11px;">
+                 <svg><use href="#i-zap"/></svg> Apply in editor
+               </button>` : '';
+
+          return `<div class="sp-sug-card">
+            <div class="sp-sug-hd">
+              <div class="sp-sug-issue"><svg><use href="#i-zap"/></svg><span>Lines ${s.start_line}–${s.end_line}: ${escHtml(s.issue)}</span></div>
+              ${comp}
+            </div>
+            ${s.why ? `<div class="sp-sug-why">${escHtml(s.why)}</div>` : ''}
+            <div class="sp-sug-try"><strong>Suggestion:</strong> ${escHtml(s.suggestion)}</div>
+            ${code}
+          </div>`;
+        }).join('');
+
+        list.querySelectorAll('[data-apply]').forEach(btn => {
+          btn.addEventListener('click', () => vscode.postMessage({ type: 'apply_suggestion', index: +btn.dataset.apply }));
+        });
+        wireCodeBlocks(list);
+      }
+
+      // ===== Render Report =====
+      function animateCount(el, end, suffix = '') {
+        if (!el) return;
+        const start = Date.now();
+        const dur = 650;
+        const step = () => {
+          const p = Math.min((Date.now() - start) / dur, 1);
+          const ease = 1 - Math.pow(1 - p, 3);
+          el.textContent = `${Math.round(end * ease)}${suffix}`;
+          if (p < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      }
+
+      function renderReport(rep) {
+        if (!rep) return;
+        const o = rep.metrics?.overall || rep.overall || {};
+        animateCount(document.getElementById('kpiProblems'), o.problems || 0);
+        animateCount(document.getElementById('kpiMinutes'), Math.round(o.total_active_min || 0), 'm');
+        animateCount(document.getElementById('kpiEpisodes'), o.stuck_episodes || 0);
+        animateCount(document.getElementById('kpiHints'), o.hints_used || 0);
+
+        // Weekly chart
+        const chartEl = document.getElementById('weeklyChart');
+        if (chartEl) {
+          const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+          const vals = rep.weekly || [0,0,0,0,0,0,0];
+          const max = Math.max(...vals, 1);
+          chartEl.innerHTML = days.map((d, i) => {
+            const h = Math.max(10, Math.round((vals[i] / max) * 100));
+            return `<div class="sp-bar-col" title="${d}: ${vals[i]} episode${vals[i]!==1?'s':''}">
+              <div class="sp-bar-fill" style="height:${h}%;"></div>
+              <span class="sp-bar-lbl">${d}</span>
+            </div>`;
+          }).join('');
+        }
+
+        // Gate chips
+        const g = rep.gate_summary || {};
+        const v = document.getElementById('gateVerified');
+        const l = document.getElementById('gateLow');
+        const r = document.getElementById('gateRejected');
+        if (v) v.textContent = `✓ ${g.passed||0} verified`;
+        if (l) l.textContent = `⚠ ${g.downgraded||0} low confidence`;
+        if (r) r.textContent = `✗ ${g.rejected||0} rejected`;
+
+        // Claims
+        const cl = document.getElementById('claimsList');
+        if (cl) {
+          const claims = rep.claims || [];
+          if (!claims.length) {
+            cl.innerHTML = `<p style="font-size:11px;color:var(--sp-text-muted);padding:8px 0;">No claims recorded yet.</p>`;
+          } else {
+            cl.innerHTML = claims.map((c, i) => {
+              const isRej = c.gate_outcome === 'rejected';
+              const cls = c.gate_outcome === 'passed' ? 'verified' : c.gate_outcome === 'downgraded' ? 'low' : 'rejected';
+              const lbl = c.gate_outcome === 'passed' ? 'Verified ✓' : c.gate_outcome === 'downgraded' ? 'Low confidence ⚠' : 'Rejected ✗';
+              const evStr = JSON.stringify(c.evidence || c.numeric_claims || {}, null, 2);
+              return `<div class="sp-claim-item">
+                <div class="sp-claim-top">
+                  <span class="sp-claim-text ${isRej?'rej':''}">${escHtml(c.text||c.claim||'')}</span>
+                  <span class="sp-gate-chip ${cls}">${lbl}</span>
+                </div>
+                ${isRej&&c.gate_reason?`<div style="font-size:11px;color:var(--sp-danger);margin-top:2px;">${escHtml(c.gate_reason)}</div>`:''}
+                <button class="sp-ev-btn" data-idx="${i}">
+                  <svg style="width:10px;height:10px;"><use href="#i-chevron-down"/></svg>
+                  <span>Show evidence</span>
+                </button>
+                <div class="sp-evidence" id="ev-${i}">${escHtml(evStr)}</div>
+              </div>`;
+            }).join('');
+            cl.querySelectorAll('.sp-ev-btn').forEach(btn => {
+              btn.addEventListener('click', () => {
+                const ev = document.getElementById(`ev-${btn.dataset.idx}`);
+                const open = ev.classList.toggle('open');
+                btn.querySelector('span').textContent = open ? 'Hide evidence' : 'Show evidence';
+              });
+            });
+          }
+        }
+      }
+
+      // ===== Tiny Markdown + Syntax Highlight =====
+      function highlightCode(code) {
+        let s = escHtml(code);
+        s = s.replace(/\b(def|return|function|const|let|var|if|else|for|while|class|import|from|async|await|try|except|catch|throw|new|typeof|in|of|export|default|null|undefined|true|false)\b/g, '<span style="color:#C084FC;font-weight:600;">$1</span>');
+        s = s.replace(/(".*?"|'.*?'|`.*?`)/g, '<span style="color:#34D399;">$1</span>');
+        s = s.replace(/\b(\d+(\.\d+)?)\b/g, '<span style="color:#F59E0B;">$1</span>');
+        s = s.replace(/((\/\/|#).*?$)/gm, '<span style="color:#64748B;font-style:italic;">$1</span>');
+        return s;
+      }
+
+      function renderMd(text) {
+        if (!text) return '';
+        let f = text.replace(/```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g, (_, lang, code) => {
+          const hl = highlightCode(code.trim());
+          const langLabel = lang || 'code';
+          return `<div class="sp-code-wrap">
+            <div class="sp-code-hd">
+              <span>${langLabel}</span>
+              <button class="sp-copy-btn" data-code="${escHtml(code.trim())}">
+                <svg><use href="#i-copy"/></svg><span>Copy</span>
+              </button>
+            </div>
+            <pre class="sp-code-pre"><code>${hl}</code></pre>
+          </div>`;
+        });
+        f = f.replace(/`([^`]+)`/g, '<code>$1</code>');
+        f = f.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+        f = f.replace(/\n\n/g, '<div style="height:5px;"></div>');
+        return f;
+      }
+
+      function wireCodeBlocks(root) {
+        if (!root) return;
+        root.querySelectorAll('.sp-copy-btn[data-code]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const code = btn.getAttribute('data-code');
+            navigator.clipboard.writeText(code || '').then(() => {
+              btn.classList.add('copied');
+              btn.innerHTML = '<svg><use href="#i-check"/></svg><span>Copied!</span>';
+              showToast('Code copied to clipboard!');
+              setTimeout(() => {
+                btn.classList.remove('copied');
+                btn.innerHTML = '<svg><use href="#i-copy"/></svg><span>Copy</span>';
+              }, 2000);
+            });
+          });
+        });
+      }
+
+      function escHtml(str) {
+        if (!str) return '';
+        return String(str)
+          .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+          .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+      }
+
+      // ===== Apply suggestion =====
+      function applySuggestion(idx) { vscode.postMessage({ type: 'apply_suggestion', index: idx }); }
+    })();
+  </script>
+</body>
+</html>

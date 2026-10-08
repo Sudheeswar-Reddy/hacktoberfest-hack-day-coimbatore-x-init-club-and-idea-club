@@ -1,0 +1,93 @@
+/* sidepanel.css — Chrome MV3 Side Panel Layout & Overrides
+ * Imports shared tokens & components, applies MV3 side panel flex layout.
+ */
+@import "../shared/tokens.css";
+@import "../shared/components.css";
+
+/* ===== Chrome MV3 Side Panel Shell Layout ===== */
+html, body {
+  width: 100%;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  background-color: var(--sp-color-bg);
+  color: var(--sp-color-text-primary);
+  font-family: var(--sp-font-body);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Chrome Container: fills entire panel without dead space */
+.sp-chrome-shell {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Sticky Top Navigation & Header */
+.sp-chrome-topbar {
+  flex-shrink: 0;
+  padding: var(--sp-space-3) var(--sp-space-3) var(--sp-space-2);
+  background: var(--sp-color-bg);
+  border-bottom: 1px solid var(--sp-color-border-subtle);
+  z-index: var(--sp-z-sticky);
+}
+
+.sp-chrome-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--sp-space-2);
+}
+
+.sp-brand-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sp-brand-title {
+  font-size: var(--sp-text-base);
+  font-weight: var(--sp-weight-bold);
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #FFFFFF 0%, #CBD5E1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.sp-brand-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Scrollable Content Area: eliminates dead space at bottom */
+.sp-chrome-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--sp-space-3);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Responsive adjustments for 320px - 480px width */
+@media (max-width: 340px) {
+  .sp-chrome-topbar {
+    padding: var(--sp-space-2) var(--sp-space-2) var(--sp-space-1);
+  }
+  .sp-chrome-body {
+    padding: var(--sp-space-2);
+  }
+  .sp-tab-btn {
+    padding: 5px 6px;
+    font-size: var(--sp-text-xs);
+  }
+  .sp-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}

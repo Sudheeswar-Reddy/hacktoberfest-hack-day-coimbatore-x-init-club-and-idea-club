@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StuckPoint</title>
+  <link rel="stylesheet" href="../shared/tokens.css" />
+  <link rel="stylesheet" href="../shared/components.css" />
+  <link rel="stylesheet" href="sidepanel.css" />
+</head>
+<body>
+  <!-- Inline SVG Symbols (Lucide Icon Set, Offline & CSP Safe) -->
+  <svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <symbol id="icon-zap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+      </symbol>
+      <symbol id="icon-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polyline points="12 6 12 12 16 14"></polyline>
+      </symbol>
+      <symbol id="icon-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+        <line x1="12" y1="9" x2="12" y2="13"></line>
+        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+      </symbol>
+      <symbol id="icon-compass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+      </symbol>
+      <symbol id="icon-keyboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+        <path d="M6 8h.001M10 8h.001M14 8h.001M18 8h.001M8 12h.001M12 12h.001M16 12h.001M7 16h10"></path>
+      </symbol>
+      <symbol id="icon-sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3z"></path>
+      </symbol>
+      <symbol id="icon-lightbulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-1 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"></path>
+        <path d="M9 18h6M10 22h4"></path>
+      </symbol>
+      <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </symbol>
+      <symbol id="icon-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </symbol>
+      <symbol id="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+        <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+      </symbol>
+      <symbol id="icon-thumbs-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M7 10v12M15 10.5a3 3 0 0 0-3-3h-1.5a1.5 1.5 0 0 1-1.5-1.5V4a2 2 0 0 0-2-2h-.5L4 10v12h11a3 3 0 0 0 3-3v-4.5a3 3 0 0 0-3-3Z"></path>
+      </symbol>
+      <symbol id="icon-thumbs-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 14V2M9 13.5a3 3 0 0 0 3 3h1.5a1.5 1.5 0 0 1 1.5 1.5V20a2 2 0 0 0 2 2h.5L20 14V2H9a3 3 0 0 0-3 3v4.5a3 3 0 0 0 3 3Z"></path>
+      </symbol>
+      <symbol id="icon-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+        <path d="M21 3v5h-5"></path>
+        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+        <path d="M3 21v-5h5"></path>
+      </symbol>
+      <symbol id="icon-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="2" y1="12" x2="22" y2="12"></line>
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+      </symbol>
+      <symbol id="icon-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </symbol>
+      <symbol id="icon-bar-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="20" x2="12" y2="10"></line>
+        <line x1="18" y1="20" x2="18" y2="4"></line>
+        <line x1="6" y1="20" x2="6" y2="16"></line>
+      </symbol>
+    </defs>
+  </svg>
+
+  <div class="sp-chrome-shell">
+    <!-- Sticky Top Navigation & Header -->
+    <header class="sp-chrome-topbar">
+      <div class="sp-chrome-header-row">
+        <div class="sp-brand-group">
+          <svg class="sp-brand-icon"><use href="#icon-zap"></use></svg>
+          <span class="sp-brand-title">StuckPoint</span>
+        </div>
+        <div class="sp-brand-actions">
+          <div class="sp-timer-chip" title="Active session time" aria-label="Active session time">
+            <svg><use href="#icon-clock"></use></svg>
+            <span id="session-timer">00:00</span>
+          </div>
+          <div id="context-chip" class="sp-context-chip" title="Current session context">
+            <div id="status-dot" class="sp-status-dot"></div>
+            <span id="context-label">Detecting…</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Segmented Tabs with Sliding Indicator -->
+      <nav class="sp-tabs-container" role="tablist" aria-label="Main Navigation">
+        <div class="sp-tab-slider" id="tab-slider"></div>
+        <button class="sp-tab-btn active" id="tab-now" role="tab" aria-selected="true" aria-controls="panel-now" data-tab="now">
+          Now
+        </button>
+        <button class="sp-tab-btn" id="tab-suggestions" role="tab" aria-selected="false" aria-controls="panel-suggestions" data-tab="suggestions">
+          Suggestions
+          <span id="sug-badge" class="sp-tab-badge" style="display: none;">0</span>
+        </button>
+        <button class="sp-tab-btn" id="tab-report" role="tab" aria-selected="false" aria-controls="panel-report" data-tab="report">
+          Report
+        </button>
+      </nav>
+    </header>
+
+    <!-- Scrollable Body Content (Flex 1 fills panel) -->
+    <main class="sp-chrome-body">
+      <!-- 1. NOW TAB PANEL -->
+      <section id="panel-now" class="sp-tab-panel active" role="tabpanel" aria-labelledby="tab-now">
+        <!-- Hero Experience: Stuck Alert Card -->
+        <article id="stuck-card" class="sp-stuck-alert hidden" aria-live="polite">
+          <div class="sp-stuck-header">
+            <div class="sp-stuck-heading">
+              <svg><use href="#icon-alert"></use></svg>
+              <span>Stuck Detected</span>
+            </div>
+            <span class="sp-chip-level" id="stuck-duration-pill">Action Recommended</span>
+          </div>
+
+          <div class="sp-signals-row" id="stuck-signals-row">
+            <div class="sp-signal-chip" id="chip-time">
+              <svg><use href="#icon-clock"></use></svg>
+              <span id="signal-time">34m on problem</span>
+            </div>
+            <div class="sp-signal-chip" id="chip-trips">
+              <svg><use href="#icon-compass"></use></svg>
+              <span id="signal-trips">3 external searches</span>
+            </div>
+            <div class="sp-signal-chip" id="chip-typing">
+              <svg><use href="#icon-keyboard"></use></svg>
+              <span id="signal-typing">Low typing rate</span>
+            </div>
+          </div>
+
+          <p id="stuck-detail" class="sp-text-xs" style="color: var(--sp-color-text-secondary); margin-bottom: 12px; line-height: 1.5;">
+            You seem stuck on this section. Would you like a progressive hint?
+          </p>
+
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <button id="btn-hint" class="sp-btn sp-btn-primary sp-btn-full">
+              <svg><use href="#icon-sparkles"></use></svg>
+              Give me a hint
+            </button>
+            <div class="sp-btn-row">
+              <button id="btn-snooze" class="sp-btn sp-btn-ghost">Not now</button>
+              <button id="btn-dismiss" class="sp-btn sp-btn-ghost">I'm fine</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- Progressive Hints Container -->
+        <article id="hint-area" class="sp-card hidden">
+          <div class="sp-card-header">
+            <div class="sp-card-title">
+              <svg><use href="#icon-lightbulb"></use></svg>
+              <span>Progressive Guidance</span>
+            </div>
+            <span class="sp-badge" id="hint-level-badge">Level 1 of 3</span>
+          </div>
+
+          <div id="hints-list" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;"></div>
+
+          <div class="sp-btn-row">
+            <button id="btn-next-hint" class="sp-btn sp-btn-primary">Next hint</button>
+            <button id="btn-solved" class="sp-btn sp-btn-success">
+              <svg><use href="#icon-check"></use></svg>
+              Solved
+            </button>
+          </div>
+
+          <div id="practice-notice" class="notice hidden" style="margin-top: 8px; font-size: 11px; color: var(--sp-color-text-muted);">
+            <button class="sp-btn sp-btn-secondary sp-btn-disabled" disabled style="opacity: 0.5; font-size: 11px; padding: 3px 6px;">Show code</button>
+            <span style="margin-left: 6px;">Code solutions are disabled in practice mode to protect retention.</span>
+          </div>
+        </article>
+
+        <!-- Ask StuckPoint Card -->
+        <article id="ask-card" class="sp-card">
+          <div class="sp-card-header">
+            <div class="sp-card-title">
+              <svg><use href="#icon-sparkles"></use></svg>
+              <span>Ask StuckPoint</span>
+            </div>
+            <span class="sp-text-xs" style="color: var(--sp-color-text-muted);">Autonomous Assistant</span>
+          </div>
+
+          <div class="sp-textarea-wrapper">
+            <textarea id="project-input" class="sp-textarea" placeholder="Paste code snippet, describe where you are stuck, or press Ctrl+Enter to submit..."></textarea>
+            <div class="sp-textarea-footer">
+              <span>Supports code snippets & errors</span>
+              <span id="char-hint">Ctrl+Enter to submit</span>
+            </div>
+          </div>
+
+          <div class="sp-btn-row" style="margin-top: 10px;">
+            <button id="btn-project-hint" class="sp-btn sp-btn-primary">
+              <svg><use href="#icon-sparkles"></use></svg>
+              Hint
+            </button>
+            <div class="sp-has-tooltip" style="flex: 1; display: flex;">
+              <button id="btn-full-fix" class="sp-btn sp-btn-warning-outline" style="width: 100%;">
+                Full fix
+              </button>
+              <div class="sp-tooltip">Full fix provides complete solution and may spoil learning</div>
+            </div>
+          </div>
+
+          <!-- Typing Indicator -->
+          <div id="typing-indicator" class="sp-typing-indicator hidden" aria-live="polite">
+            <div class="sp-typing-dot"></div>
+            <div class="sp-typing-dot"></div>
+            <div class="sp-typing-dot"></div>
+            <span style="margin-left: 6px; font-size: 11px; color: var(--sp-color-text-muted);">Formulating hint…</span>
+          </div>
+
+          <!-- Streaming Response Output Bubble -->
+          <div id="response-bubble" class="sp-response-bubble hidden">
+            <div class="sp-card-header" style="margin-bottom: 6px;">
+              <span class="sp-text-xs" style="font-weight: 600; color: var(--sp-color-primary);" id="response-sender">StuckPoint Assistant</span>
+              <span class="sp-text-xs" style="color: var(--sp-color-text-muted);">Just now</span>
+            </div>
+            <div id="response-content" class="sp-text-xs" style="line-height: 1.6; color: var(--sp-color-text-primary);"></div>
+            <div class="sp-feedback-row">
+              <button class="sp-icon-btn" id="thumb-up" title="Helpful" aria-label="Helpful">
+                <svg style="width: 13px; height: 13px;"><use href="#icon-thumbs-up"></use></svg>
+              </button>
+              <button class="sp-icon-btn" id="thumb-down" title="Not helpful" aria-label="Not helpful">
+                <svg style="width: 13px; height: 13px;"><use href="#icon-thumbs-down"></use></svg>
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <!-- Current Page Card (Chrome-specific) -->
+        <article class="sp-card sp-card-interactive" id="current-page-card">
+          <div class="sp-card-header">
+            <div class="sp-card-title">
+              <svg><use href="#icon-globe"></use></svg>
+              <span>Current Page</span>
+            </div>
+            <span id="page-domain" class="sp-chip-signal">Active Tab</span>
+          </div>
+          <div id="page-title" class="sp-text-xs" style="color: var(--sp-color-text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            Detecting page…
+          </div>
+        </article>
+
+        <!-- Engine Offline Alert -->
+        <div id="engine-offline" class="sp-card hidden" style="border-left: 3px solid var(--sp-color-danger); background: rgba(239, 68, 68, 0.08);">
+          <div class="sp-card-title" style="color: var(--sp-color-danger); margin-bottom: 4px;">
+            <svg style="color: var(--sp-color-danger);"><use href="#icon-alert"></use></svg>
+            Engine Offline
+          </div>
+          <p class="sp-text-xs" style="color: var(--sp-color-text-secondary);">
+            Local stuck-detector is not reachable. Launch the server in terminal:
+            <code style="display: block; margin-top: 6px; padding: 4px 6px; background: rgba(0,0,0,0.3); border-radius: 4px; color: #F87171;">python -m stuckpoint serve</code>
+          </p>
+        </div>
+      </section>
+
+      <!-- 2. SUGGESTIONS TAB PANEL -->
+      <section id="panel-suggestions" class="sp-tab-panel" role="tabpanel" aria-labelledby="tab-suggestions">
+        <div id="sug-list" style="display: flex; flex-direction: column; gap: 8px;">
+          <!-- Empty State (Line-Art SVG) -->
+          <div class="sp-empty-state">
+            <svg class="sp-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+            </svg>
+            <div class="sp-empty-title">No Active Suggestions</div>
+            <p class="sp-empty-text">Suggestions appear when StuckPoint spots patterns in your work.</p>
+            <button class="sp-btn sp-btn-secondary" id="btn-refresh-sug">
+              <svg><use href="#icon-refresh"></use></svg>
+              Scan again
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. REPORT TAB PANEL -->
+      <section id="panel-report" class="sp-tab-panel" role="tabpanel" aria-labelledby="tab-report">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span class="sp-text-xs" style="font-weight: 600; color: var(--sp-color-text-primary);">Skills & Verification</span>
+          <button id="btn-refresh-report" class="sp-btn sp-btn-secondary" style="padding: 4px 8px; font-size: 11px;">
+            <svg><use href="#icon-refresh"></use></svg>
+            Refresh
+          </button>
+        </div>
+
+        <div id="report-content" style="display: flex; flex-direction: column; gap: 10px;">
+          <!-- KPI 2x2 Grid -->
+          <div class="sp-kpi-grid">
+            <div class="sp-kpi-card">
+              <div class="sp-kpi-header">
+                <span>Problems</span>
+                <svg><use href="#icon-check-circle"></use></svg>
+              </div>
+              <div class="sp-kpi-value" id="kpi-problems" data-target="0">0</div>
+            </div>
+            <div class="sp-kpi-card">
+              <div class="sp-kpi-header">
+                <span>Active Time</span>
+                <svg><use href="#icon-clock"></use></svg>
+              </div>
+              <div class="sp-kpi-value" id="kpi-active-min" data-target="0">0m</div>
+            </div>
+            <div class="sp-kpi-card">
+              <div class="sp-kpi-header">
+                <span>Stuck Episodes</span>
+                <svg><use href="#icon-alert"></use></svg>
+              </div>
+              <div class="sp-kpi-value" id="kpi-episodes" data-target="0">0</div>
+            </div>
+            <div class="sp-kpi-card">
+              <div class="sp-kpi-header">
+                <span>Hints Used</span>
+                <svg><use href="#icon-lightbulb"></use></svg>
+              </div>
+              <div class="sp-kpi-value" id="kpi-hints" data-target="0">0</div>
+            </div>
+          </div>
+
+          <!-- Weekly Mini Timeline Bar Chart -->
+          <div class="sp-chart-container">
+            <div class="sp-chart-title">
+              <span>Weekly Stuck Episodes</span>
+              <span style="font-size: 10px; color: var(--sp-color-text-muted);">Past 7 Days</span>
+            </div>
+            <div class="sp-timeline-bars" id="weekly-chart">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Gate Summary Status Chips -->
+          <div class="sp-card">
+            <div class="sp-card-title" style="margin-bottom: 6px;">
+              <span>Gate Summary</span>
+            </div>
+            <div class="sp-gate-row" id="gate-summary-row">
+              <span class="sp-gate-chip verified" id="gate-verified">✓ 0 verified</span>
+              <span class="sp-gate-chip low" id="gate-low">⚠ 0 low confidence</span>
+              <span class="sp-gate-chip rejected" id="gate-rejected">✗ 0 rejected</span>
+            </div>
+            <div id="claims-list" style="margin-top: 10px;"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Floating Toast Notifications -->
+    <div id="toast-container" class="sp-toast-container" aria-live="polite"></div>
+  </div>
+
+  <script src="sidepanel.js"></script>
+</body>
+</html>
