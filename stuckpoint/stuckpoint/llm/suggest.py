@@ -110,6 +110,20 @@ def _clean(s: Optional[str]) -> Optional[str]:
     return s or None
 
 
+def schema_for(allow_code: bool) -> dict:
+    """When code is allowed, `replacement` is required (the model otherwise picks null);
+    a reply without it fails validation and gemma_json retries with the error."""
+    if not allow_code:
+        return SCHEMA
+    import copy
+
+    s = copy.deepcopy(SCHEMA)
+    item = s["properties"]["suggestions"]["items"]
+    item["properties"]["replacement"] = {"type": "string", "minLength": 1}
+    item["required"] = item["required"] + ["replacement"]
+    return s
+
+
 def code_allowed(mode: str, profile: str, solved: bool) -> bool:
     """Part 3.3 table: may `replacement` (code) be returned?"""
     if mode == "review":
@@ -153,13 +167,15 @@ def suggest_with_stats(code: str, language: str = "", url: Optional[str] = None,
         problem_title=problem_title or "(unknown)",
         numbered_code=_numbered(code),
         replacement_rule=(
-            "the improved code for exactly the quoted lines (same indentation), or null."
+            "REQUIRED - the complete improved code that replaces exactly the quoted lines, with the "
+            "same indentation, so it can be pasted over them. Never null."
             if allow_code else
             "always null. Do NOT write any code anywhere in your answer; describe the idea in "
             "plain English only."),
     )
     try:
-        out = gemma_json(prompt, SCHEMA, system=render("system_tutor"), temperature=0.2, use_cache=False)
+        out = gemma_json(prompt, schema_for(allow_code), system=render("system_tutor"),
+                         temperature=0.2, use_cache=False)
     except LLMError:
         return mode, [], 0                # not cached: try again next time
 

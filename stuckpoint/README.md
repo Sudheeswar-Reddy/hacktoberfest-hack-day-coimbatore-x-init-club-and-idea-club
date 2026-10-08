@@ -235,7 +235,7 @@ The demo covers:
   - Tags problems with skill topics.
   - Drafts the skills report as structured JSON, which the evidence gate verifies.
 
-  [Update if the `gemma-4-26b-a4b-it` fallback was used.]
+  We run `gemma-4-26b-a4b-it` (the faster Gemma 4 variant) with thinking set to minimal: about 1.5–7 s per hint or suggestion. `gemma-4-31b-it` took 19–57 s per call on our key. Switch with `GEMMA_MODEL` in `.env`.
 
 ### Open Source Components
 
@@ -324,6 +324,7 @@ Then use Chrome (and VS Code) normally. Useful extra commands:
 
 ```bash
 python -m stuckpoint check-llm   # verify the Gemma 4 connection
+python scripts/live_check.py     # live check of every Gemma feature (~20 API calls)
 python -m stuckpoint hint        # try three practice-mode hints on Coin Change
 python -m stuckpoint suggest my_code.py --profile student   # code suggestions for a file
 python -m stuckpoint frames      # what Activity Frames compiled from your activity

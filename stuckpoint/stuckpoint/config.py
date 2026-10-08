@@ -37,7 +37,10 @@ def _path(name: str, default: str) -> str:
 # --- Gemma 4 (Person 2) ---
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GEMMA_MODEL = os.getenv("GEMMA_MODEL", "gemma-4-31b-it")
-LLM_TIMEOUT_S = _int("LLM_TIMEOUT_S", 20)
+LLM_TIMEOUT_S = _int("LLM_TIMEOUT_S", 30)
+# Gemma 4 "thinking": minimal keeps replies fast (a code review: ~6 s instead of ~146 s).
+# minimal | low | medium | high | default (= don't send a thinking setting)
+GEMMA_THINKING = os.getenv("GEMMA_THINKING", "minimal").strip().lower()
 LLM_LOG = _path("LLM_LOG", "logs/llm.jsonl")
 
 # --- Activity source (Person 1) ---

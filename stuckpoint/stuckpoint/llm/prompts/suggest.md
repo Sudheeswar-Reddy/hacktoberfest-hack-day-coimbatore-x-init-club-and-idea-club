@@ -7,7 +7,7 @@ CODE (line numbers are NOT part of the code):
 $numbered_code
 
 For each place:
-- "quote": copy the exact line or lines from the code, character for character, WITHOUT the line numbers. Keep it short (1 to 6 lines). If you cannot quote it exactly, leave that place out.
+- "quote": copy the exact line or lines from the code, character for character, WITHOUT the line numbers. Quote the complete block your improvement would replace (for a loop: the whole loop including its body), at most 12 lines. If you cannot quote it exactly, leave that place out.
 - "issue": a short label, e.g. "Nested loop over the same array".
 - "why": one or two sentences on why it is slow or clumsy.
 - "complexity_before" / "complexity_after": big-O, e.g. "O(n^2)" and "O(n)", or null if complexity is not the point.
