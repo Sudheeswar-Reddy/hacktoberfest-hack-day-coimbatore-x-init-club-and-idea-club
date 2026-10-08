@@ -200,10 +200,10 @@ The same hover card appears everywhere, rendered in a shadow DOM so no website's
 
 ### Team Contributions
 
-- **[Member Name]:** Local engine, ingestion into Activity Frames, stuck detection, store, metrics
-- **[Member Name]:** Gemma 4 integration, hints and guard, code suggestions, evidence gate, report
-- **[Member Name]:** Chrome extension core: tracking, notifications, editor adapters, highlights and hover cards on any site
-- **[Member Name]:** Side panel dashboard, VS Code extension, README, demo video, submission
+- **Thulasiram Sudheeswar Reddy (Team Lead):** Local engine, ingestion into Activity Frames, stuck detection, store, metrics
+- **Poornashri P:** Gemma 4 integration, hints and guard, code suggestions, evidence gate, report
+- **Yashwanth Eswar Podupuganti:** Chrome extension core: tracking, notifications, editor adapters, highlights and hover cards on any site
+- ** Sandhiri Shree Vardhan:** Side panel dashboard, VS Code extension, README, demo video, submission
 
 ## Working Application
 
