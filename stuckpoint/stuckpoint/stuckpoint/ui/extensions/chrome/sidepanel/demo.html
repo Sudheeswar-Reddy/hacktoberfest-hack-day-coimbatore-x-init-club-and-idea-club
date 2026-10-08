@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StuckPoint — Chrome UI Storybook Demo</title>
+  <link rel="stylesheet" href="../shared/tokens.css" />
+  <link rel="stylesheet" href="../shared/components.css" />
+  <link rel="stylesheet" href="sidepanel.css" />
+  <style>
+    /* Demo Toolbar */
+    .demo-toolbar {
+      background: #090A12;
+      border-bottom: 1px solid var(--sp-color-border-hover);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      z-index: 9999;
+    }
+    .demo-tag {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--sp-color-primary);
+      margin-right: 6px;
+    }
+    .demo-btn {
+      background: var(--sp-color-surface-elevated);
+      color: var(--sp-color-text-secondary);
+      border: 1px solid var(--sp-color-border);
+      padding: 5px 10px;
+      border-radius: var(--sp-radius-sm);
+      font-size: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 150ms ease;
+    }
+    .demo-btn:hover {
+      background: var(--sp-color-surface-hover);
+      color: #fff;
+    }
+    .demo-btn.active {
+      background: var(--sp-color-primary);
+      color: #fff;
+      border-color: var(--sp-color-primary);
+    }
+    .demo-stage {
+      max-width: 440px;
+      margin: 20px auto;
+      height: 720px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+      border: 1px solid var(--sp-color-border-hover);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+  </style>
+</head>
+<body>
+  <!-- Inline SVG Symbols (Lucide Icon Set) -->
+  <svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <symbol id="icon-zap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></symbol>
+      <symbol id="icon-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></symbol>
+      <symbol id="icon-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></symbol>
+      <symbol id="icon-compass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></symbol>
+      <symbol id="icon-keyboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="M6 8h.001M10 8h.001M14 8h.001M18 8h.001M8 12h.001M12 12h.001M16 12h.001M7 16h10"></path></symbol>
+      <symbol id="icon-sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3z"></path></symbol>
+      <symbol id="icon-lightbulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-1 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"></path><path d="M9 18h6M10 22h4"></path></symbol>
+      <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></symbol>
+      <symbol id="icon-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></symbol>
+      <symbol id="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></symbol>
+      <symbol id="icon-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></symbol>
+      <symbol id="icon-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M3 21v-5h5"></path></symbol>
+      <symbol id="icon-thumbs-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 10v12M15 10.5a3 3 0 0 0-3-3h-1.5a1.5 1.5 0 0 1-1.5-1.5V4a2 2 0 0 0-2-2h-.5L4 10v12h11a3 3 0 0 0 3-3v-4.5a3 3 0 0 0-3-3Z"></path></symbol>
+      <symbol id="icon-thumbs-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 14V2M9 13.5a3 3 0 0 0 3 3h1.5a1.5 1.5 0 0 1 1.5 1.5V20a2 2 0 0 0 2 2h.5L20 14V2H9a3 3 0 0 0-3 3v4.5a3 3 0 0 0 3 3Z"></path></symbol>
+      <symbol id="icon-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></symbol>
+    </defs>
+  </svg>
+
+  <!-- Interactive Storybook State Switcher -->
+  <header class="demo-toolbar">
+    <span class="demo-tag">State Preview:</span>
+    <button class="demo-btn active" onclick="setDemoState('stuck')">1. Stuck Detected</button>
+    <button class="demo-btn" onclick="setDemoState('idle')">2. Idle Focused</button>
+    <button class="demo-btn" onclick="setDemoState('loading')">3. Streaming Response</button>
+    <button class="demo-btn" onclick="setDemoState('suggestions')">4. Suggestions (2)</button>
+    <button class="demo-btn" onclick="setDemoState('empty')">5. Empty States</button>
+    <button class="demo-btn" onclick="setDemoState('report')">6. Report & Timeline</button>
+    <button class="demo-btn" onclick="setDemoState('error')">7. Engine Offline</button>
+  </header>
+
+  <!-- Rendered Chrome Side Panel Component Container -->
+  <main class="demo-stage">
+    <div class="sp-chrome-shell">
+      <header class="sp-chrome-topbar">
+        <div class="sp-chrome-header-row">
+          <div class="sp-brand-group">
+            <svg class="sp-brand-icon"><use href="#icon-zap"></use></svg>
+            <span class="sp-brand-title">StuckPoint</span>
+          </div>
+          <div class="sp-brand-actions">
+            <div class="sp-timer-chip">
+              <svg><use href="#icon-clock"></use></svg>
+              <span>34:12</span>
+            </div>
+            <div id="demo-context-chip" class="sp-context-chip">
+              <div id="demo-status-dot" class="sp-status-dot pulse-amber"></div>
+              <span id="demo-context-label">Practice — Two Sum</span>
+            </div>
+          </div>
+        </div>
+
+        <nav class="sp-tabs-container" role="tablist">
+          <div class="sp-tab-slider" id="demo-tab-slider" style="transform: translateX(0px); width: 33.3%;"></div>
+          <button class="sp-tab-btn active" id="dtab-now" onclick="switchDemoTab('now')">Now</button>
+          <button class="sp-tab-btn" id="dtab-suggestions" onclick="switchDemoTab('suggestions')">
+            Suggestions
+            <span id="demo-sug-badge" class="sp-tab-badge">2</span>
+          </button>
+          <button class="sp-tab-btn" id="dtab-report" onclick="switchDemoTab('report')">Report</button>
+        </nav>
+      </header>
+
+      <div class="sp-chrome-body">
+        <!-- Panel Now -->
+        <section id="dpanel-now" class="sp-tab-panel active">
+          <!-- Hero Stuck Alert Card -->
+          <article id="demo-stuck-card" class="sp-stuck-alert">
+            <div class="sp-stuck-header">
+              <div class="sp-stuck-heading">
+                <svg><use href="#icon-alert"></use></svg>
+                <span>Stuck Detected</span>
+              </div>
+              <span class="sp-chip-signal" style="background: rgba(245,158,11,0.15); color: #FBBF24;">High Confidence</span>
+            </div>
+            <div class="sp-signals-row">
+              <div class="sp-signal-chip">
+                <svg><use href="#icon-clock"></use></svg>
+                <span>34m on problem</span>
+              </div>
+              <div class="sp-signal-chip">
+                <svg><use href="#icon-compass"></use></svg>
+                <span>3 external searches</span>
+              </div>
+              <div class="sp-signal-chip">
+                <svg><use href="#icon-keyboard"></use></svg>
+                <span>Low typing rate</span>
+              </div>
+            </div>
+            <p class="sp-text-xs" style="color: var(--sp-color-text-secondary); margin-bottom: 12px; line-height: 1.5;">
+              You have been editing the nested loop for over 30 minutes with minimal typing progress.
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <button class="sp-btn sp-btn-primary sp-btn-full" onclick="alert('Progressive hint triggered')">
+                <svg><use href="#icon-sparkles"></use></svg>
+                Give me a hint
+              </button>
+              <div class="sp-btn-row">
+                <button class="sp-btn sp-btn-ghost" onclick="setDemoState('idle')">Not now</button>
+                <button class="sp-btn sp-btn-ghost" onclick="setDemoState('idle')">I'm fine</button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Ask StuckPoint Card -->
+          <article class="sp-card">
+            <div class="sp-card-header">
+              <div class="sp-card-title">
+                <svg><use href="#icon-sparkles"></use></svg>
+                <span>Ask StuckPoint</span>
+              </div>
+              <span class="sp-text-xs" style="color: var(--sp-color-text-muted);">Autonomous</span>
+            </div>
+            <div class="sp-textarea-wrapper">
+              <textarea class="sp-textarea" placeholder="Paste code snippet or question...">def twoSum(nums, target):
+    for i in range(len(nums)):
+        for j in range(i+1, len(nums)):
+            if nums[i] + nums[j] == target:
+                return [i, j]</textarea>
+              <div class="sp-textarea-footer">
+                <span>Ctrl+Enter to submit</span>
+                <span>154 chars</span>
+              </div>
+            </div>
+            <div class="sp-btn-row" style="margin-top: 10px;">
+              <button class="sp-btn sp-btn-primary" onclick="setDemoState('loading')">
+                <svg><use href="#icon-sparkles"></use></svg>
+                Hint
+              </button>
+              <div class="sp-has-tooltip" style="flex: 1; display: flex;">
+                <button class="sp-btn sp-btn-warning-outline" style="width: 100%;">Full fix</button>
+                <div class="sp-tooltip">Full fix spoils the learning</div>
+              </div>
+            </div>
+
+            <!-- Typing indicator -->
+            <div id="demo-typing" class="sp-typing-indicator hidden" style="margin-top: 10px;">
+              <div class="sp-typing-dot"></div>
+              <div class="sp-typing-dot"></div>
+              <div class="sp-typing-dot"></div>
+              <span style="font-size: 11px; margin-left: 6px; color: var(--sp-color-text-muted);">Formulating progressive hint…</span>
+            </div>
+
+            <!-- Response Bubble -->
+            <div id="demo-response" class="sp-response-bubble hidden">
+              <div class="sp-card-header" style="margin-bottom: 6px;">
+                <span class="sp-text-xs" style="font-weight: 600; color: var(--sp-color-primary);">Hint Level 1</span>
+                <span class="sp-text-xs" style="color: var(--sp-color-text-muted);">Just now</span>
+              </div>
+              <p class="sp-text-xs" style="color: var(--sp-color-text-primary); line-height: 1.6;">
+                Notice that your current solution searches for the complement in <code>O(n)</code> inside a loop. Can you remember values you have already visited using a hash table to achieve <strong>O(n) time</strong>?
+              </p>
+              <div class="sp-code-container">
+                <div class="sp-code-header">
+                  <span>python</span>
+                  <button class="sp-copy-btn" onclick="this.textContent = 'Copied!'">
+                    <svg style="width:12px;height:12px;"><use href="#icon-copy"></use></svg>
+                    <span>Copy</span>
+                  </button>
+                </div>
+                <pre class="sp-code-pre"><code><span style="color:#C084FC;">seen</span> = {}
+<span style="color:#C084FC;">for</span> i, num <span style="color:#C084FC;">in</span> <span style="color:#34D399;">enumerate</span>(nums):
+    diff = target - num
+    <span style="color:#C084FC;">if</span> diff <span style="color:#C084FC;">in</span> seen:
+        <span style="color:#C084FC;">return</span> [seen[diff], i]
+    seen[num] = i</code></pre>
+              </div>
+            </div>
+          </article>
+
+          <!-- Current Page Card -->
+          <article class="sp-card sp-card-interactive">
+            <div class="sp-card-header">
+              <div class="sp-card-title">
+                <svg><use href="#icon-globe"></use></svg>
+                <span>Current Page</span>
+              </div>
+              <span class="sp-chip-signal">leetcode.com</span>
+            </div>
+            <div class="sp-text-xs" style="color: var(--sp-color-text-secondary);">
+              1. Two Sum — LeetCode Problem Description
+            </div>
+          </article>
+
+          <!-- Engine Offline Alert -->
+          <div id="demo-offline-card" class="sp-card hidden" style="border-left: 3px solid var(--sp-color-danger); background: rgba(239, 68, 68, 0.08);">
+            <div class="sp-card-title" style="color: var(--sp-color-danger);">
+              <svg style="color: var(--sp-color-danger);"><use href="#icon-alert"></use></svg>
+              Engine Offline
+            </div>
+            <p class="sp-text-xs" style="color: var(--sp-color-text-secondary); margin-top: 4px;">
+              Run <code>python -m stuckpoint serve</code> in terminal to start local detection.
+            </p>
+          </div>
+        </section>
+
+        <!-- Panel Suggestions -->
+        <section id="dpanel-suggestions" class="sp-tab-panel">
+          <div id="demo-sug-container" style="display: flex; flex-direction: column; gap: 8px;">
+            <div class="sp-sug-card">
+              <div class="sp-sug-header">
+                <div class="sp-sug-issue">
+                  <svg style="width:14px;height:14px;color:var(--sp-color-warning);"><use href="#icon-zap"></use></svg>
+                  <span>Nested quadratic search loop</span>
+                </div>
+                <span class="sp-comp-badge">O(n²) → O(n)</span>
+              </div>
+              <div class="sp-sug-why">Searching repeatedly through array can be eliminated with a lookup dict.</div>
+              <div class="sp-sug-try"><strong>Suggestion:</strong> Use hash map complement lookup</div>
+              <div class="sp-code-container">
+                <div class="sp-code-header">
+                  <span>Optimized snippet</span>
+                  <button class="sp-copy-btn">
+                    <svg style="width:12px;height:12px;"><use href="#icon-copy"></use></svg>
+                    <span>Copy</span>
+                  </button>
+                </div>
+                <pre class="sp-code-pre"><code>lookup = {val: i for i, val in enumerate(nums)}</code></pre>
+              </div>
+            </div>
+
+            <div class="sp-sug-card">
+              <div class="sp-sug-header">
+                <div class="sp-sug-issue">
+                  <svg style="width:14px;height:14px;color:var(--sp-color-warning);"><use href="#icon-zap"></use></svg>
+                  <span>Unnecessary list copy in loop</span>
+                </div>
+                <span class="sp-comp-badge">O(n) mem → O(1)</span>
+              </div>
+              <div class="sp-sug-why">Iterating slice copies array elements on every turn.</div>
+              <div class="sp-sug-try"><strong>Suggestion:</strong> Use index pointer or enumerate iterator</div>
+            </div>
+          </div>
+
+          <!-- Empty state placeholder -->
+          <div id="demo-sug-empty" class="sp-empty-state hidden">
+            <svg class="sp-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+            </svg>
+            <div class="sp-empty-title">No Active Suggestions</div>
+            <p class="sp-empty-text">Suggestions appear when StuckPoint spots patterns in your work.</p>
+            <button class="sp-btn sp-btn-secondary">Scan again</button>
+          </div>
+        </section>
+
+        <!-- Panel Report -->
+        <section id="dpanel-report" class="sp-tab-panel">
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div class="sp-kpi-grid">
+              <div class="sp-kpi-card">
+                <div class="sp-kpi-header"><span>Problems</span><svg><use href="#icon-check-circle"></use></svg></div>
+                <div class="sp-kpi-value">14</div>
+              </div>
+              <div class="sp-kpi-card">
+                <div class="sp-kpi-header"><span>Active Time</span><svg><use href="#icon-clock"></use></svg></div>
+                <div class="sp-kpi-value">142m</div>
+              </div>
+              <div class="sp-kpi-card">
+                <div class="sp-kpi-header"><span>Stuck Episodes</span><svg><use href="#icon-alert"></use></svg></div>
+                <div class="sp-kpi-value">3</div>
+              </div>
+              <div class="sp-kpi-card">
+                <div class="sp-kpi-header"><span>Hints Used</span><svg><use href="#icon-lightbulb"></use></svg></div>
+                <div class="sp-kpi-value">5</div>
+              </div>
+            </div>
+
+            <!-- Mini Weekly Timeline Bar Chart -->
+            <div class="sp-chart-container">
+              <div class="sp-chart-title">
+                <span>Weekly Stuck Episodes</span>
+                <span style="font-size: 10px; color: var(--sp-color-text-muted);">Past 7 Days</span>
+              </div>
+              <div class="sp-timeline-bars">
+                <div class="sp-bar-col" title="Mon: 2 episodes"><div class="sp-bar-fill" style="height: 40%;"></div><span class="sp-bar-label">Mon</span></div>
+                <div class="sp-bar-col" title="Tue: 5 episodes"><div class="sp-bar-fill" style="height: 100%;"></div><span class="sp-bar-label">Tue</span></div>
+                <div class="sp-bar-col" title="Wed: 1 episode"><div class="sp-bar-fill" style="height: 20%;"></div><span class="sp-bar-label">Wed</span></div>
+                <div class="sp-bar-col" title="Thu: 3 episodes"><div class="sp-bar-fill" style="height: 60%;"></div><span class="sp-bar-label">Thu</span></div>
+                <div class="sp-bar-col" title="Fri: 4 episodes"><div class="sp-bar-fill" style="height: 80%;"></div><span class="sp-bar-label">Fri</span></div>
+                <div class="sp-bar-col" title="Sat: 0 episodes"><div class="sp-bar-fill" style="height: 10%;"></div><span class="sp-bar-label">Sat</span></div>
+                <div class="sp-bar-col" title="Sun: 2 episodes"><div class="sp-bar-fill" style="height: 40%;"></div><span class="sp-bar-label">Sun</span></div>
+              </div>
+            </div>
+
+            <!-- Gate Summary Chips -->
+            <div class="sp-card">
+              <div class="sp-card-title">Gate Summary</div>
+              <div class="sp-gate-row">
+                <span class="sp-gate-chip verified">✓ 12 verified</span>
+                <span class="sp-gate-chip low">⚠ 2 low confidence</span>
+                <span class="sp-gate-chip rejected">✗ 1 rejected</span>
+              </div>
+              <div style="margin-top: 8px;">
+                <div class="sp-claim-item">
+                  <div class="sp-claim-top">
+                    <span class="sp-claim-text">Reduced time complexity from O(n²) to O(n)</span>
+                    <span class="sp-gate-chip verified">Verified ✓</span>
+                  </div>
+                </div>
+                <div class="sp-claim-item">
+                  <div class="sp-claim-top">
+                    <span class="sp-claim-text rejected">Memory reduction to O(1)</span>
+                    <span class="sp-gate-chip rejected">Rejected ✗</span>
+                  </div>
+                  <div class="sp-text-xs" style="color:var(--sp-color-danger);margin-top:2px;">Reason: Hash map auxiliary space requires O(n)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function switchDemoTab(tabName) {
+      document.querySelectorAll('.sp-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.sp-tab-panel').forEach(p => p.classList.remove('active'));
+      const activeBtn = document.getElementById('dtab-' + tabName);
+      if (activeBtn) activeBtn.classList.add('active');
+      const activePanel = document.getElementById('dpanel-' + tabName);
+      if (activePanel) activePanel.classList.add('active');
+
+      const slider = document.getElementById('demo-tab-slider');
+      if (tabName === 'now') slider.style.transform = 'translateX(0%)';
+      if (tabName === 'suggestions') slider.style.transform = 'translateX(100%)';
+      if (tabName === 'report') slider.style.transform = 'translateX(200%)';
+    }
+
+    function setDemoState(state) {
+      document.querySelectorAll('.demo-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+
+      const stuckCard = document.getElementById('demo-stuck-card');
+      const typing = document.getElementById('demo-typing');
+      const response = document.getElementById('demo-response');
+      const offlineCard = document.getElementById('demo-offline-card');
+      const statusDot = document.getElementById('demo-status-dot');
+      const contextLabel = document.getElementById('demo-context-label');
+      const sugBadge = document.getElementById('demo-sug-badge');
+      const sugContainer = document.getElementById('demo-sug-container');
+      const sugEmpty = document.getElementById('demo-sug-empty');
+
+      // Reset
+      stuckCard.classList.add('hidden');
+      typing.classList.add('hidden');
+      response.classList.add('hidden');
+      offlineCard.classList.add('hidden');
+      sugContainer.classList.remove('hidden');
+      sugEmpty.classList.add('hidden');
+      statusDot.className = 'sp-status-dot';
+      contextLabel.textContent = 'Practice — Two Sum';
+
+      switch (state) {
+        case 'stuck':
+          switchDemoTab('now');
+          stuckCard.classList.remove('hidden');
+          statusDot.className = 'sp-status-dot pulse-amber';
+          break;
+        case 'idle':
+          switchDemoTab('now');
+          statusDot.className = 'sp-status-dot';
+          break;
+        case 'loading':
+          switchDemoTab('now');
+          typing.classList.remove('hidden');
+          setTimeout(() => {
+            typing.classList.add('hidden');
+            response.classList.remove('hidden');
+          }, 600);
+          break;
+        case 'suggestions':
+          switchDemoTab('suggestions');
+          sugBadge.style.display = 'inline-flex';
+          sugBadge.textContent = '2';
+          break;
+        case 'empty':
+          switchDemoTab('suggestions');
+          sugContainer.classList.add('hidden');
+          sugEmpty.classList.remove('hidden');
+          sugBadge.style.display = 'none';
+          break;
+        case 'report':
+          switchDemoTab('report');
+          break;
+        case 'error':
+          switchDemoTab('now');
+          offlineCard.classList.remove('hidden');
+          statusDot.className = 'sp-status-dot offline';
+          contextLabel.textContent = 'Offline';
+          break;
+      }
+    }
+  </script>
+</body>
+</html>
