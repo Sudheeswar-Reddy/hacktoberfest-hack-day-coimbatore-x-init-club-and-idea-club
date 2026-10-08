@@ -351,9 +351,9 @@ The engine serves interactive API docs at `http://127.0.0.1:8765/docs`.
 
 ## Devpost Submission
 
-**Devpost Project:** [Devpost Project URL]
+**Devpost Project:** (https://dev.to/poornanana/stuckpoint-context-aware-coding-help-4jdk)
 
-[Add the link to the team's Devpost submission. Ensure the Devpost project page is complete and contains the required project information, links, media, and team details.]
+
 
 ## Challenges and Learnings
 
