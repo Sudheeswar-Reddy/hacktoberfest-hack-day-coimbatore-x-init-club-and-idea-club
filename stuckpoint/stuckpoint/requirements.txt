@@ -1,0 +1,18 @@
+# Person 1 — capture & detection
+activity-frames>=0.2.0           # the compiler; pure Python, works on every OS
+python-dotenv>=1.0
+# cross-platform recorder (python -m stuckpoint record)
+uiautomation>=2.0; sys_platform == "win32"   # exact browser URLs on Windows
+pynput>=1.7; sys_platform != "win32"         # key/click counts on macOS / Linux
+
+# Person 2 — Gemma 4 via the Gemini API
+google-genai>=1.0
+jsonschema>=4.0
+
+# Person 4 — UI (append versions as needed)
+streamlit>=1.30
+streamlit-autorefresh>=1.0
+plyer>=2.1
+
+# dev
+pytest>=7
