@@ -163,6 +163,12 @@ The same hover card appears everywhere, rendered in a shadow DOM so no website's
 
 **7. Skills report.** Activity is grouped into per-problem sessions; Gemma 4 tags topics and drafts claims (strengths, weaknesses, recommendations). The **evidence gate** recomputes every number from the measured metrics and checks every cited problem exists. Claims are marked verified, low-confidence or rejected, with the reason shown in the side panel.
 
+**Metric definitions** (computed by code, never by the model):
+- *Active minutes:* the sum of Activity Frames' `duration_min` over a problem's frames (localhost and terminal frames count toward the current project).
+- *Stuck episodes:* stuck signals for the problem that were confirmed by the rules or by Gemma 4.
+- *Hints used:* hints served for the problem. *Solved:* only what the user marked with **Solved ✓**; never guessed.
+- *Time to unstuck:* minutes from the first hint to the next frame on that problem with a typing rate of at least 15 keys/min.
+
 ### Technical Decisions
 
 - **Extensions as the recorder.** Writing events in Activity Frames' capture schema keeps its deterministic, evidence-linked compiler and makes it cross-platform.
@@ -179,17 +185,18 @@ The same hover card appears everywhere, rendered in a shadow DOM so no website's
 
 > _To be updated during the Hack Day. Tick only what actually works._
 
-- [x] Context classifier (practice / project / exam) and stuck detector with tests
+- [x] Context classifier (practice / project / review / exam, including online editors) and stuck detector with tests
 - [x] Gemma 4 client with JSON validation, retries, caching and logging
 - [x] Graduated hints with the no-code guard; borderline stuck judgement; topic tagging; report-claim drafting
-- [ ] Local engine: FastAPI server, ingestion into Activity Frames, background detection loop
+- [x] Local engine: FastAPI server (all API routes), ingestion into Activity Frames, background detection loop, local store (tested on Windows; pure Python, so it also runs on macOS and Linux)
+- [x] Code suggestions with quote verification and the mode/profile policy (engine, `POST /suggest`)
+- [x] Evidence gate + skills report (engine, `GET /report`)
+- [x] Language server for other IDEs: `python -m stuckpoint lsp` (diagnostics, hover cards, quick fix, Student "Show me")
 - [ ] Chrome extension: tracking, notifications, side panel with Settings (profile, per-site off)
 - [ ] Hover cards on Monaco editors (any site) and read-only code blocks (any site)
 - [ ] CodeMirror and Ace editor adapters
-- [ ] Code suggestions with quote verification and the mode/profile policy
-- [ ] Evidence gate + skills report in the side panel
+- [ ] Skills report in the side panel
 - [ ] VS Code extension: diagnostics, hover cards, quick fix (also tested in Cursor)
-- [ ] Language server for other IDEs (Neovim, JetBrains, Sublime, Zed, Helix)
 
 ### Team Contributions
 
@@ -236,6 +243,7 @@ The demo covers:
 - **[FastAPI](https://github.com/fastapi/fastapi) (MIT) + [Uvicorn](https://github.com/encode/uvicorn) (BSD):** Local engine HTTP server.
 - **[google-genai](https://github.com/googleapis/python-genai) (Apache 2.0):** Python SDK for calling Gemma 4 through the Gemini API.
 - **[jsonschema](https://github.com/python-jsonschema/jsonschema) (MIT):** Validates every Gemma 4 response.
+- **[pygls](https://github.com/openlawlibrary/pygls) (Apache 2.0):** The language server for other IDEs.
 - **Monaco, CodeMirror and Ace editor APIs** (as embedded by the websites that use them; all open source): used at runtime to read code and add highlights. Not bundled.
 - **Dataset:** N/A. All data comes from the user's own activity; demo data was recorded by team members during the Hack Day.
 - **API / Service:** Gemini API (Google AI Studio), hosted inference for Gemma 4.
@@ -246,35 +254,60 @@ The demo covers:
 
 ### Prerequisites
 
+- Windows 10/11, macOS or Linux
 - Google Chrome (or another Chromium browser with Side Panel support)
 - Python 3.10 or newer
 - A Gemini API key from [Google AI Studio](https://aistudio.google.com/apikey)
-- Optional: VS Code 1.80+ for the IDE extension
+- Optional: VS Code 1.80+ (or Cursor / Windsurf / VSCodium) for the IDE extension
 
 ### Installation
+
+**macOS / Linux**
 
 ```bash
 git clone [repository-url]
 cd stuckpoint
-python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env             # then add your GEMINI_API_KEY
+cp .env.example .env             # then put your key after GEMINI_API_KEY=
 ```
+
+**Windows (PowerShell)**
+
+```powershell
+git clone [repository-url]
+cd stuckpoint
+py -m venv .venv
+.venv\Scripts\Activate.ps1       # cmd.exe: .venv\Scripts\activate.bat
+pip install -r requirements.txt
+copy .env.example .env           # then put your key after GEMINI_API_KEY=
+```
+
+If PowerShell blocks the activation script, run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once.
+
+**API key:** open `.env` in the project root and set `GEMINI_API_KEY=<your key>` (no quotes, no spaces). `.env` is git-ignored; never commit it. Check it with `python -m stuckpoint check-llm`.
 
 **Chrome extension:** open `chrome://extensions`, enable **Developer mode**, click **Load unpacked**, and select `extensions/chrome`.
 
 **VS Code extension (also Cursor, Windsurf, VSCodium):** open the `extensions/vscode` folder in the editor and press **F5** to launch it in an Extension Development Host window. Set your profile in Settings → `stuckpoint.profile` (`professional` or `student`).
 
-**Other IDEs (Neovim, JetBrains, Sublime Text, Zed, Helix):** [if built] point your editor's LSP client at `python -m stuckpoint lsp`. [If not built, this is listed under Future work.]
+**Other IDEs (Neovim, JetBrains, Sublime Text, Zed, Helix, Emacs):** point your editor's LSP client at the command `python -m stuckpoint lsp` (stdio), using the Python from `.venv`, with the project folder as the working directory. For learner mode, pass `{"profile": "student"}` as initialization options or set `STUCKPOINT_PROFILE=student`. Example for Neovim:
+
+```lua
+vim.lsp.start({ name = "stuckpoint", cmd = { "/path/to/stuckpoint/.venv/bin/python", "-m", "stuckpoint", "lsp" },
+                cmd_cwd = "/path/to/stuckpoint", init_options = { profile = "professional" } })
+```
+
+JetBrains IDEs need the LSP4IJ plugin; Sublime Text needs the LSP package.
 
 ### Environment Variables
 
 ```env
 GEMINI_API_KEY=your-key-here
 GEMMA_MODEL=gemma-4-31b-it
-STUCKPOINT_SOURCE=live
-AFRAMES_DB=data/capture.sqlite
+STUCKPOINT_SOURCE=live          # or "fixture" to run on sample data
+AFRAMES_DB=                     # empty = data/capture.sqlite, written by the engine
 ENGINE_PORT=8765
 # Minutes on one problem before StuckPoint offers help (3 for a quick demo)
 STUCK_THRESHOLD_MIN=15
@@ -291,9 +324,17 @@ Then use Chrome (and VS Code) normally. Useful extra commands:
 
 ```bash
 python -m stuckpoint check-llm   # verify the Gemma 4 connection
+python -m stuckpoint hint        # try three practice-mode hints on Coin Change
+python -m stuckpoint suggest my_code.py --profile student   # code suggestions for a file
+python -m stuckpoint frames      # what Activity Frames compiled from your activity
+python -m stuckpoint report      # skills report with gate summary, as JSON
 python -m stuckpoint demo        # run detection on sample data (no extension needed)
 python -m pytest                 # run the tests
 ```
+
+The engine serves interactive API docs at `http://127.0.0.1:8765/docs`.
+
+**Capture without the extensions (optional).** `python -m stuckpoint record` is an OS-level recorder for Windows, macOS and Linux (X11). It writes the same Activity Frames capture database. Install its extras with `pip install -r requirements-recorder.txt`; on Linux it also needs `xdotool`. Use it *or* the extensions, not both, or keystrokes are counted twice.
 
 ### Usage
 
@@ -322,7 +363,6 @@ python -m pytest                 # run the tests
 
 ### Future work
 
-- Language server (`python -m stuckpoint lsp`) so every LSP editor, including Neovim, JetBrains (via LSP4IJ), Sublime Text, Zed and Helix, gets the same highlights and hover cards. [Move to Key Features if built during the event.]
 - Firefox and Edge builds of the browser extension.
 - Team mode for professionals: shared, opt-in suggestion patterns across a codebase.
 - **Learnings:** [What the team learned technically and about the problem]
