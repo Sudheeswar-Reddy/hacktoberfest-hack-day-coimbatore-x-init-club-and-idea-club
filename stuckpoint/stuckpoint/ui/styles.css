@@ -1,0 +1,225 @@
+/* CSS Variables for Light / Dark Mode Support */
+:root {
+  --color-primary: #13609A;
+  --color-primary-hover: #1b85d1;
+  --color-navy: #0B2545;
+  --color-teal: #1B9AAA;
+  --color-foam: #EAF7FA;
+  --color-coral: #FF7A59;
+  --color-text: #334155;
+  --color-text-light: #64748B;
+  --color-bg: #EAF7FA;
+  --color-surface: #FFFFFF;
+  --color-border: #E2E8F0;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(11, 37, 69, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(11, 37, 69, 0.1), 0 2px 4px -1px rgba(11, 37, 69, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(11, 37, 69, 0.1), 0 4px 6px -2px rgba(11, 37, 69, 0.05);
+  
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-12: 48px;
+}
+
+[data-theme="dark"] {
+  --color-primary: #38bdf8;
+  --color-primary-hover: #7dd3fc;
+  --color-navy: #f8fafc;
+  --color-teal: #2dd4bf;
+  --color-foam: #0f172a;
+  --color-coral: #fb923c;
+  --color-text: #e2e8f0;
+  --color-text-light: #94a3b8;
+  --color-bg: #020617;
+  --color-surface: #0f172a;
+  --color-border: #1e293b;
+}
+
+/* Base Body Application */
+.stApp {
+    background-color: var(--color-bg) !important;
+    color: var(--color-text) !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif !important;
+}
+
+/* Hide Streamlit Clutter */
+header, footer { visibility: hidden !important; }
+#MainMenu { visibility: hidden !important; }
+
+/* Headings */
+h1, h2, h3, h4, h5 {
+    color: var(--color-navy) !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.02em;
+}
+
+/* Animations */
+@keyframes slideUpFade {
+    0% { opacity: 0; transform: translateY(8px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+.animate-in {
+    animation: slideUpFade 300ms ease-out forwards;
+}
+
+/* Refined Hero Header */
+.hero-header {
+    display: flex;
+    align-items: center;
+    background-color: var(--color-surface);
+    padding: var(--spacing-4) var(--spacing-6);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--spacing-6);
+    border: 1px solid var(--color-border);
+    position: relative;
+    overflow: hidden;
+}
+.hero-header h1 {
+    margin: 0;
+    font-size: 24px;
+    margin-right: var(--spacing-4);
+}
+.hero-header p {
+    margin: 0;
+    color: var(--color-text-light);
+    font-size: 14px;
+}
+.hero-wave {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-teal));
+}
+
+/* Clean Cards */
+div.st-emotion-cache-1r6slb0, div.st-emotion-cache-1v0mbdj {
+    background-color: var(--color-surface) !important;
+    border: 1px solid var(--color-border) !important;
+    border-radius: var(--radius-md) !important;
+    padding: var(--spacing-6) !important;
+    box-shadow: var(--shadow-sm) !important;
+    transition: transform 200ms ease, box-shadow 200ms ease;
+}
+div.st-emotion-cache-1r6slb0:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md) !important;
+}
+
+/* Buttons */
+.stButton > button {
+    border-radius: var(--radius-lg) !important;
+    background-color: var(--color-primary) !important;
+    color: #ffffff !important;
+    border: none !important;
+    font-weight: 500 !important;
+    padding: var(--spacing-2) var(--spacing-4) !important;
+    transition: all 200ms ease !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+.stButton > button:hover {
+    background-color: var(--color-primary-hover) !important;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md) !important;
+}
+.stButton > button:active {
+    transform: scale(0.98);
+}
+.stButton > button:focus-visible {
+    outline: 2px solid var(--color-teal);
+    outline-offset: 2px;
+}
+
+/* Secondary Button Support via nth-child or container targeting */
+.secondary-btn .stButton > button {
+    background-color: transparent !important;
+    border: 1px solid var(--color-border) !important;
+    color: var(--color-text) !important;
+    box-shadow: none !important;
+}
+.secondary-btn .stButton > button:hover {
+    background-color: var(--color-foam) !important;
+    color: var(--color-primary) !important;
+    border-color: var(--color-primary) !important;
+}
+
+/* Chat Bubbles */
+.chat-bubble {
+    padding: var(--spacing-3) var(--spacing-4);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-3);
+    max-width: 85%;
+    line-height: 1.5;
+    font-size: 14px;
+}
+.chat-bubble.assistant {
+    background-color: var(--color-foam);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    border-bottom-left-radius: 4px;
+}
+.chat-bubble.user {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    align-self: flex-end;
+    margin-left: auto;
+    border-bottom-right-radius: 4px;
+}
+
+/* Report Metrics */
+[data-testid="stMetric"] {
+    background-color: var(--color-surface);
+    padding: var(--spacing-4);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
+    border-top: 3px solid var(--color-primary);
+}
+[data-testid="stMetricLabel"] {
+    font-size: 13px;
+    color: var(--color-text-light);
+    font-weight: 500;
+}
+[data-testid="stMetricValue"] {
+    font-size: 28px;
+    color: var(--color-navy);
+    font-weight: 700;
+    margin-top: var(--spacing-2);
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: var(--radius-lg);
+    font-size: 12px;
+    font-weight: 500;
+}
+.status-verified { background-color: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+.status-low { background-color: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+.status-rejected { background-color: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+.status-neutral { background-color: var(--color-foam); color: var(--color-primary); border: 1px solid var(--color-border); }
+
+/* SVG Icon Helper */
+svg.icon {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+    vertical-align: middle;
+    margin-right: 6px;
+}
